@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🪢 Tarik Tambang - Kebutuhan Dasar Manusia | SMK Keperawatan</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    background: linear-gradient(160deg, #0f2027, #203a43, #2c5364);
+    min-height: 100vh;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    padding: 15px;
+  }
+  .wrap { max-width: 900px; width: 100%; }
+
+  header { text-align:center; margin-bottom:15px; }
+  header h1 {
+    font-size: 1.9em;
+    background: linear-gradient(90deg,#f1c40f,#e67e22,#f1c40f);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shine 3s linear infinite;
+    background-size: 200%;
+  }
+  @keyframes shine { to { background-position: 200%; } }
+  header p { opacity:.85; font-size:.95em; margin-top:4px; }
+
+  /* ===== ARENA ===== */
+  .arena {
+    position: relative;
+    height: 240px;
+    background: linear-gradient(#7ec8e3 0%, #aee1f9 55%, #7cb342 55%, #558b2f 100%);
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 12px 35px rgba(0,0,0,.45);
+    margin-bottom: 15px;
+  }
+  .sun {
+    position:absolute; top:15px; right:25px;
+    width:45px; height:45px; background:#ffe082; border-radius:50%;
+    box-shadow: 0 0 30px 12px rgba(255,224,130,.6);
+    animation: pulse 3s ease-in-out infinite;
+  }
+  @keyframes pulse { 50% { box-shadow: 0 0 45px 18px rgba(255,224,130,.8); } }
+  .cloud { position:absolute; font-size:2em; opacity:.9; animation: drift 22s linear infinite; }
+  .cloud.c1 { top:20px; left:-60px; }
+  .cloud.c2 { top:55px; left:-60px; animation-delay:-11s; font-size:1.4em; }
+  @keyframes drift { to { transform: translateX(1000px); } }
+
+  .goal {
+    position:absolute; top:0; bottom:0; width:70px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:2.2em; opacity:.35;
+  }
+  .goal.g-left { left:0; border-right:3px dashed rgba(46,204,113,.7); }
+  .goal.g-right { right:0; border-left:3px dashed rgba(231,76,60,.7); }
+
+  .center-mark {
+    position:absolute; left:50%; top:55%; bottom:0;
+    width:0; border-left:3px dashed rgba(255,255,255,.7);
+    transform: translateX(-50%);
+  }
+  .center-flag {
+    position:absolute; left:50%; top:calc(55% - 32px);
+    transform: translateX(-50%); font-size:1.8em;
+  }
+
+  /* Kelompok tali+tim bergerak bersamaan */
+  .tug-group {
+    position:absolute; left:0; right:0; top:0; bottom:0;
+    transition: transform 1s cubic-bezier(.34,1.4,.64,1);
+  }
+  .rope {
+    position:absolute; top:calc(55% + 18px); left:-40px; right:-40px;
+    height:14px; border-radius:7px;
+    background: repeating-linear-gradient(90deg,#8d5524 0 14px,#a9672f 14px 28px);
+    box-shadow: 0 4px 8px rgba(0,0,0,.35);
+  }
+  .knot {
+    position:absolute; top:calc(55% + 8px); left:50%;
+    transform:translateX(-50%);
+    width:34px; height:34px; background:#c0392b;
+    border-radius:50%; border:4px solid #922b21;
+    box-shadow: 0 3px 8px rgba(0,0,0,.4);
+  }
+
+  .crew { position:absolute; top:calc(55% - 40px); font-size:2.6em; }
+  .crew span { display:inline-block; animation: pull 1s ease-in-out infinite; }
+  .crew.left { left:8%; }
+  .crew.left span { transform: scaleX(-1); }
+  .crew.right { right:8%; }
+  @keyframes pull {
+    0%,100% { transform: translateX(0) rotate(0); }
+    50% { transform: translateX(-6px) rotate(-6deg); }
+  }
+  .crew.left span { animation-name: pullL; }
+  @keyframes pullL {
+    0%,100% { transform: scaleX(-1) translateX(0) rotate(0); }
+    50% { transform: scaleX(-1) translateX(-6px) rotate(-6deg); }
+  }
+
+  .tag {
+    position:absolute; top:12px; padding:6px 16px;
+    border-radius:20px; font-weight:bold; font-size:.9em;
+    box-shadow: 0 3px 10px rgba(0,0,0,.3);
+  }
+  .tag.t-left { left:12px; background:#27ae60; }
+  .tag.t-right { right:12px; background:#e74c3c; }
+
+  /* ===== SCOREBOARD ===== */
+  .scores {
+    display:flex; gap:10px; margin-bottom:15px;
+  }
+  .score-card {
+    flex:1; text-align:center; padding:12px;
+    background: rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.15);
+    border-radius:14px; backdrop-filter: blur(6px);
+  }
+  .score-card small { opacity:.75; display:block; margin-bottom:2px; }
+  .score-card b { font-size:1.8em; }
+  .score-card.green b { color:#2ecc71; }
+  .score-card.red b { color:#e74c3c; }
+  .score-card.gold b { color:#f1c40f; }
+
+  /* ===== QUIZ ===== */
+  .quiz {
+    background: rgba(255,255,255,.07);
+    border:1px solid rgba(255,255,255,.15);
+    border-radius:16px; padding:22px;
+    backdrop-filter: blur(8px);
+  }
+  .q-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+  .q-badge {
+    background:#f1c40f; color:#2c3e50; font-weight:bold;
+    padding:5px 14px; border-radius:20px; font-size:.9em;
+  }
+  .dots { display:flex; gap:6px; }
+  .dot { width:12px; height:12px; border-radius:50%; background:rgba(255,255,255,.25); transition:.3s; }
+  .dot.done-ok { background:#2ecc71; }
+  .dot.done-no { background:#e74c3c; }
+  .dot.active { background:#f1c40f; transform:scale(1.3); }
+
+  .q-text { font-size:1.15em; line-height:1.55; margin-bottom:18px; }
+  .opts { display:grid; gap:10px; }
+  .opt {
+    background: rgba(255,255,255,.1);
+    border:2px solid rgba(255,255,255,.2);
+    color:#fff; text-align:left; padding:13px 16px;
+    border-radius:12px; cursor:pointer; font-size:1em;
+    transition:.25s;
+  }
+  .opt:hover:not(:disabled) { background:rgba(241,196,15,.25); border-color:#f1c40f; transform:translateX(6px); }
+  .opt:disabled { cursor:default; }
+  .opt.correct { background:rgba(46,204,113,.4); border-color:#2ecc71; }
+  .opt.wrong { background:rgba(231,76,60,.4); border-color:#e74c3c; }
+
+  .feedback {
+    margin-top:15px; padding:12px 15px; border-radius:10px;
+    font-weight:bold; text-align:center; min-height:20px;
+  }
+  .feedback.ok { background:rgba(46,204,113,.25); }
+  .feedback.no { background:rgba(231,76,60,.25); }
+
+  .btn {
+    display:block; margin:18px auto 0; padding:13px 45px;
+    background:linear-gradient(90deg,#f1c40f,#e67e22);
+    color:#2c3e50; border:none; border-radius:30px;
+    font-size:1.1em; font-weight:bold; cursor:pointer;
+    transition:.3s; box-shadow:0 5px 18px rgba(241,196,15,.35);
+  }
+  .btn:hover:not(:disabled) { transform:scale(1.06); }
+  .btn:disabled { background:#7f8c8d; box-shadow:none; cursor:default; }
+
+  /* ===== START & END ===== */
+  .screen {
+    background: rgba(255,255,255,.07);
+    border:1px solid rgba(255,255,255,.15);
+    border-radius:16px; padding:35px 25px; text-align:center;
+    backdrop-filter: blur(8px);
+  }
+  .screen h2 { color:#f1c40f; margin-bottom:15px; }
+  .rules { text-align:left; max-width:520px; margin:18px auto; line-height:2; }
+  .hidden { display:none; }
+
+  .modal {
+    position:fixed; inset:0; background:rgba(0,0,0,.85);
+    display:flex; align-items:center; justify-content:center; z-index:99;
+  }
+  .modal-box {
+    background:linear-gradient(150deg,#2c3e50,#4a69bd);
+    border-radius:20px; padding:35px 30px; text-align:center;
+    max-width:480px; width:92%; animation:pop .5s;
+    box-shadow:0 20px 60px rgba(0,0,0,.6);
+  }
+  @keyframes pop { from { transform:scale(.3); opacity:0; } }
+  .modal-box .big { font-size:4.5em; margin-bottom:10px; }
+  .modal-box h2 { font-size:2em; margin-bottom:12px; }
+  .modal-box p { line-height:1.7; margin-bottom:20px; }
+
+  .shake { animation: shake .5s; }
+  @keyframes shake {
+    0%,100%{transform:translateX(0);} 25%{transform:translateX(-8px);} 75%{transform:translateX(8px);}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>🪢 TARIK TAMBANG 🪢</h1>
+    <p>Kebutuhan Dasar Manusia • SMK Keperawatan Kelas X</p>
+  </header>
+
+  <!-- ARENA -->
+  <div class="arena">
+    <div class="sun"></div>
+    <div class="cloud c1">☁️</div>
+    <div class="cloud c2">☁️</div>
+    <div class="goal g-left">🏆</div>
+    <div class="goal g-right">🏆</div>
+    <div class="tag t-left">👦 SISWA</div>
+    <div class="tag t-right">🤖 KOMPUTER</div>
+    <div class="center-mark"></div>
+    <div class="center-flag">🚩</div>
+    <div class="tug-group" id="tugGroup">
+      <div class="rope"></div>
+      <div class="knot"></div>
+      <div class="crew left"><span>🧑‍⚕️</span></div>
+      <div class="crew right"><span>🤖</span></div>
+    </div>
+  </div>
+
+  <!-- SKOR -->
+  <div class="scores">
+    <div class="score-card green"><small>✅ BENAR (Siswa)</small><b id="sLeft">0</b></div>
+    <div class="score-card gold"><small>📝 SOAL</small><b id="sNum">1/5</b></div>
+    <div class="score-card red"><small>❌ SALAH (Komputer)</small><b id="sRight">0</b></div>
+  </div>
+
+  <!-- START -->
+  <div class="screen" id="startScreen">
+    <h2>Siap Bertanding, Calon Perawat? 🩺</h2>
+    <p>Tarik tambang melawan <b>KOMPUTER</b> dengan menjawab soal kebutuhan dasar manusia!</p>
+    <div class="rules">
+      ✅ Jawaban <b>BENAR</b> → tali tertarik ke <b>KIRI</b> (siswa unggul)<br>
+      ❌ Jawaban <b>SALAH</b> → tali tertarik ke <b>KANAN</b> (komputer unggul)<br>
+      🏆 Jawab <b>5 soal BENAR semua</b> → SISWA MENANG!<br>
+      ⚡ Ada waktu <b>30 detik</b> per soal, jangan lama-lama!
+    </div>
+    <button class="btn" onclick="startGame()">🎮 MULAI BERMAIN</button>
+  </div>
+
+  <!-- QUIZ -->
+  <div class="quiz hidden" id="quizBox">
+    <div class="q-head">
+      <span class="q-badge" id="qBadge">Soal 1</span>
+      <div class="dots" id="dots"></div>
+      <span class="q-badge" style="background:#e67e22;color:#fff;">⏱️ <span id="timer">30</span>s</span>
+    </div>
+    <div class="q-text" id="qText"></div>
+    <div class="opts" id="opts"></div>
+    <div class="feedback" id="feedback"></div>
+    <button class="btn hidden" id="nextBtn" onclick="nextQ()">Soal Berikutnya ➡️</button>
+  </div>
+</div>
+
+<!-- MODAL AKHIR -->
+<div class="modal hidden" id="endModal">
+  <div class="modal-box">
+    <div class="big" id="endEmoji">🏆</div>
+    <h2 id="endTitle"></h2>
+    <p id="endMsg"></p>
+    <button class="btn" onclick="location.reload()">🔄 Main Lagi</button>
+  </div>
+</div>
+
+<script>
+const questions = [
+  {
+    q: "Menurut teori Abraham Maslow, kebutuhan dasar manusia yang paling mendasar dan harus dipenuhi pertama kali adalah...",
+    o: ["Kebutuhan aktualisasi diri","Kebutuhan fisiologis (oksigen, cairan, nutrisi, istirahat)","Kebutuhan rasa aman","Kebutuhan harga diri"],
+    a: 1
+  },
+  {
+    q: "Seorang pasien di rawat di RS mengeluh lemas karena tidak mau makan dan minum akibat mual. Kebutuhan dasar yang terganggu adalah...",
+    o: ["Kebutuhan kasih sayang","Kebutuhan harga diri","Kebutuhan fisiologis","Kebutuhan aktualisasi diri"],
+    a: 2
+  },
+  {
+    q: "Berikut ini yang termasuk contoh kebutuhan fisiologis adalah...",
+    o: ["Oksigen, cairan & elektrolit, nutrisi, suhu tubuh, eliminasi, istirahat","Cinta, persahabatan, dan kekeluargaan","Penghargaan, prestasi, dan pengakuan","Rasa aman dan perlindungan"],
+    a: 0
+  },
+  {
+    q: "Pasien baru masuk RS merasa cemas dan takut dengan lingkungan yang asing. Kebutuhan yang perlu dipenuhi perawat adalah...",
+    o: ["Kebutuhan aktualisasi diri","Kebutuhan fisiologis","Kebutuhan rasa aman dan nyaman","Kebutuhan harga diri"],
+    a: 2
+  },
+  {
+    q: "Urutan hierarki kebutuhan dasar manusia menurut Maslow dari yang TERENDAH ke TERTINGGI adalah...",
+    o: ["Aktualisasi diri → Harga diri → Kasih sayang → Rasa aman → Fisiologis","Fisiologis → Rasa aman → Kasih sayang → Harga diri → Aktualisasi diri","Rasa aman → Fisiologis → Harga diri → Kasih sayang → Aktualisasi diri","Kasih sayang → Fisiologis → Rasa aman → Aktualisasi diri → Harga diri"],
+    a: 1
+  }
+];
+
+let cur = 0, sL = 0, sR = 0, answered = false, timerId = null, timeLeft = 30;
+
+function startGame(){
+  document.getElementById('startScreen').classList.add('hidden');
+  document.getElementById('quizBox').classList.remove('hidden');
+  buildDots();
+  loadQ();
+}
+
+function buildDots(){
+  const d = document.getElementById('dots');
+  d.innerHTML = '';
+  questions.forEach(()=>{
+    const s = document.createElement('span');
+    s.className = 'dot';
+    d.appendChild(s);
+  });
+}
+
+function loadQ(){
+  answered = false;
+  timeLeft = 30;
+  document.getElementById('timer').textContent = timeLeft;
+  clearInterval(timerId);
+  timerId = setInterval(tick, 1000);
+
+  const q = questions[cur];
+  document.getElementById('qBadge').textContent = 'Soal ' + (cur+1);
+  document.getElementById('sNum').textContent = (cur+1) + '/5';
+  document.getElementById('qText').textContent = q.q;
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('nextBtn').classList.add('hidden');
+
+  document.querySelectorAll('.dot').forEach((d,i)=>{
+    d.classList.toggle('active', i === cur);
+  });
+
+  const box = document.getElementById('opts');
+  box.innerHTML = '';
+  q.o.forEach((txt,i)=>{
+    const b = document.createElement('button');
+    b.className = 'opt';
+    b.textContent = String.fromCharCode(65+i) + '. ' + txt;
+    b.onclick = ()=>answer(i,b);
+    box.appendChild(b);
+  });
+}
+
+function tick(){
+  timeLeft--;
+  document.getElementById('timer').textContent = timeLeft;
+  if(timeLeft <= 0){
+    clearInterval(timerId);
+    timeUp();
+  }
+}
+
+function timeUp(){
+  if(answered) return;
+  answered = true;
+  sR++;
+  const btns = document.querySelectorAll('.opt');
+  btns.forEach((b,i)=>{
+    b.disabled = true;
+    if(i === questions[cur].a) b.classList.add('correct');
+  });
+  markDot(false);
+  const fb = document.getElementById('feedback');
+  fb.textContent = '⏰ WAKTU HABIS! Tali tertarik ke komputer!';
+  fb.className = 'feedback no';
+  document.querySelector('.arena').classList.add('shake');
+  setTimeout(()=>document.querySelector('.arena').classList.remove('shake'), 500);
+  pullRope();
+  finishQ();
+}
+
+function answer(i, btn){
+  if(answered) return;
+  answered = true;
+  clearInterval(timerId);
+
+  const q = questions[cur];
+  const btns = document.querySelectorAll('.opt');
+  btns.forEach(b=>b.disabled = true);
+
+  const fb = document.getElementById('feedback');
+  if(i === q.a){
+    sL++;
+    btn.classList.add('correct');
+    fb.textContent = '✅ BENAR! Tali bergerak ke arahmu! 💪';
+    fb.className = 'feedback ok';
+    markDot(true);
+  } else {
+    sR++;
+    btn.classList.add('wrong');
+    btns[q.a].classList.add('correct');
+    fb.textContent = '❌ SALAH! Tali tertarik ke komputer!';
+    fb.className = 'feedback no';
+    markDot(false);
+    document.querySelector('.arena').classList.add('shake');
+    setTimeout(()=>document.querySelector('.arena').classList.remove('shake'), 500);
+  }
+  pullRope();
+  finishQ();
+}
+
+function markDot(ok){
+  const dots = document.querySelectorAll('.dot');
+  dots[cur].classList.remove('active');
+  dots[cur].classList.add(ok ? 'done-ok' : 'done-no');
+}
+
+function pullRope(){
+  document.getElementById('sLeft').textContent = sL;
+  document.getElementById('sRight').textContent = sR;
+  const diff = sL - sR;                 // positif = ke kiri (siswa unggul)
+  const maxShift = 180;                 // batas geser (px)
+  const shift = Math.max(-maxShift, Math.min(maxShift, diff * 70));
+  document.getElementById('tugGroup').style.transform = 'translateX(' + shift + 'px)';
+}
+
+function finishQ(){
+  if(cur < questions.length - 1){
+    document.getElementById('nextBtn').classList.remove('hidden');
+  } else {
+    setTimeout(showEnd, 1600);
+  }
+}
+
+function nextQ(){
+  cur++;
+  loadQ();
+}
+
+function showEnd(){
+  clearInterval(timerId);
+  const em = document.getElementById('endEmoji');
+  const ti = document.getElementById('endTitle');
+  const ms = document.getElementById('endMsg');
+
+  if(sL === 5){
+    em.textContent = '🏆';
+    ti.textContent = 'SISWA MENANG! 🎉';
+    ti.style.color = '#2ecc71';
+    ms.innerHTML = 'LUAR BIASA! Semua <b>5 soal dijawab BENAR</b> dan tali berhasil kamu tarik penuh ke kiri!<br><br>📚 <b>Ringkasan Maslow:</b><br>Fisiologis → Rasa Aman → Kasih Sayang → Harga Diri → Aktualisasi Diri<br><br>Kamu siap jadi perawat hebat! 👨‍⚕️👩‍⚕️';
+  } else if(sL > sR){
+    em.textContent = '🥈';
+    ti.textContent = 'Kamu Unggul!';
+    ti.style.color = '#f1c40f';
+    ms.innerHTML = 'Skor akhir: <b>Siswa ' + sL + ' – ' + sR + ' Komputer</b><br><br>Kamu menang, tapi belum sempurna. Pelajari lagi hierarki Maslow agar bisa menang telak! 💪';
+  } else if(sL === sR){
+    em.textContent = '🤝';
+    ti.textContent = 'SERI!';
+    ti.style.color = '#3498db';
+    ms.innerHTML = 'Skor akhir: <b>Siswa ' + sL + ' – ' + sR + ' Komputer</b><br><br>Tali tetap di tengah! Pelajari lagi materinya dan coba lagi ya!';
+  } else {
+    em.textContent = '🤖';
+    ti.textContent = 'Komputer Menang';
+    ti.style.color = '#e74c3c';
+    ms.innerHTML = 'Skor akhir: <b>Siswa ' + sL + ' – ' + sR + ' Komputer</b><br><br>Jangan menyerah! Ingat urutan Maslow:<br>1️⃣ Fisiologis 2️⃣ Rasa Aman 3️⃣ Kasih Sayang 4️⃣ Harga Diri 5️⃣ Aktualisasi Diri<br><br>Ayo coba lagi! 🔥';
+  }
+  document.getElementById('endModal').classList.remove('hidden');
+}
+</script>
+</body>
+</html>
