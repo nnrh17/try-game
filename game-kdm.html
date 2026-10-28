@@ -2,475 +2,500 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🪢 Tarik Tambang - Kebutuhan Dasar Manusia | SMK Keperawatan</title>
+<title>Tarik Tambang - Kebutuhan Dasar Manusia</title>
 <style>
-  * { margin:0; padding:0; box-sizing:border-box; }
+  * { margin:0; padding:0; box-sizing:border-box; font-family: 'Segoe UI', sans-serif; }
   body {
-    font-family: 'Segoe UI', Tahoma, sans-serif;
-    background: linear-gradient(160deg, #0f2027, #203a43, #2c5364);
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
     min-height: 100vh;
     color: #fff;
-    display: flex;
-    justify-content: center;
-    padding: 15px;
+    overflow-x: hidden;
   }
-  .wrap { max-width: 900px; width: 100%; }
-
-  header { text-align:center; margin-bottom:15px; }
-  header h1 {
-    font-size: 1.9em;
-    background: linear-gradient(90deg,#f1c40f,#e67e22,#f1c40f);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: shine 3s linear infinite;
-    background-size: 200%;
+  .container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
   }
-  @keyframes shine { to { background-position: 200%; } }
-  header p { opacity:.85; font-size:.95em; margin-top:4px; }
+  h1 {
+    text-align: center;
+    font-size: 2em;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+  }
+  .subtitle {
+    text-align: center;
+    margin-bottom: 20px;
+    opacity: 0.9;
+  }
 
-  /* ===== ARENA ===== */
+  /* Arena Tarik Tambang */
   .arena {
     position: relative;
-    height: 240px;
-    background: linear-gradient(#7ec8e3 0%, #aee1f9 55%, #7cb342 55%, #558b2f 100%);
-    border-radius: 18px;
+    height: 220px;
+    background: linear-gradient(to bottom, #87CEEB 0%, #87CEEB 60%, #8B4513 60%, #654321 100%);
+    border-radius: 15px;
+    margin-bottom: 20px;
     overflow: hidden;
-    box-shadow: 0 12px 35px rgba(0,0,0,.45);
-    margin-bottom: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
   }
-  .sun {
-    position:absolute; top:15px; right:25px;
-    width:45px; height:45px; background:#ffe082; border-radius:50%;
-    box-shadow: 0 0 30px 12px rgba(255,224,130,.6);
-    animation: pulse 3s ease-in-out infinite;
-  }
-  @keyframes pulse { 50% { box-shadow: 0 0 45px 18px rgba(255,224,130,.8); } }
-  .cloud { position:absolute; font-size:2em; opacity:.9; animation: drift 22s linear infinite; }
-  .cloud.c1 { top:20px; left:-60px; }
-  .cloud.c2 { top:55px; left:-60px; animation-delay:-11s; font-size:1.4em; }
-  @keyframes drift { to { transform: translateX(1000px); } }
-
-  .goal {
-    position:absolute; top:0; bottom:0; width:70px;
-    display:flex; align-items:center; justify-content:center;
-    font-size:2.2em; opacity:.35;
-  }
-  .goal.g-left { left:0; border-right:3px dashed rgba(46,204,113,.7); }
-  .goal.g-right { right:0; border-left:3px dashed rgba(231,76,60,.7); }
-
-  .center-mark {
-    position:absolute; left:50%; top:55%; bottom:0;
-    width:0; border-left:3px dashed rgba(255,255,255,.7);
+  .center-line {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: #fff;
     transform: translateX(-50%);
+    opacity: 0.5;
   }
-  .center-flag {
-    position:absolute; left:50%; top:calc(55% - 32px);
-    transform: translateX(-50%); font-size:1.8em;
-  }
-
-  /* Kelompok tali+tim bergerak bersamaan */
-  .tug-group {
-    position:absolute; left:0; right:0; top:0; bottom:0;
-    transition: transform 1s cubic-bezier(.34,1.4,.64,1);
+  .center-line::before {
+    content: "🏁";
+    position: absolute;
+    top: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 1.5em;
   }
   .rope {
-    position:absolute; top:calc(55% + 18px); left:-40px; right:-40px;
-    height:14px; border-radius:7px;
-    background: repeating-linear-gradient(90deg,#8d5524 0 14px,#a9672f 14px 28px);
-    box-shadow: 0 4px 8px rgba(0,0,0,.35);
+    position: absolute;
+    top: 130px;
+    left: 0;
+    right: 0;
+    height: 12px;
+    background: repeating-linear-gradient(
+      45deg,
+      #8B4513,
+      #8B4513 10px,
+      #A0522D 10px,
+      #A0522D 20px
+    );
+    transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    border-radius: 6px;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.4);
   }
-  .knot {
-    position:absolute; top:calc(55% + 8px); left:50%;
-    transform:translateX(-50%);
-    width:34px; height:34px; background:#c0392b;
-    border-radius:50%; border:4px solid #922b21;
-    box-shadow: 0 3px 8px rgba(0,0,0,.4);
+  .flag {
+    position: absolute;
+    top: 110px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 2em;
+    transition: left 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   }
+  .team {
+    position: absolute;
+    top: 80px;
+    font-size: 3em;
+    transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+  .team-left { left: 5%; }
+  .team-right { right: 5%; }
+  .team-label {
+    position: absolute;
+    top: 40px;
+    font-size: 1em;
+    font-weight: bold;
+    background: rgba(0,0,0,0.5);
+    padding: 5px 15px;
+    border-radius: 20px;
+  }
+  .label-left { left: 5%; background: rgba(46, 204, 113, 0.8); }
+  .label-right { right: 5%; background: rgba(231, 76, 60, 0.8); }
 
-  .crew { position:absolute; top:calc(55% - 40px); font-size:2.6em; }
-  .crew span { display:inline-block; animation: pull 1s ease-in-out infinite; }
-  .crew.left { left:8%; }
-  .crew.left span { transform: scaleX(-1); }
-  .crew.right { right:8%; }
-  @keyframes pull {
-    0%,100% { transform: translateX(0) rotate(0); }
-    50% { transform: translateX(-6px) rotate(-6deg); }
+  /* Info Skor */
+  .score-board {
+    display: flex;
+    justify-content: space-around;
+    background: rgba(255,255,255,0.1);
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    backdrop-filter: blur(5px);
   }
-  .crew.left span { animation-name: pullL; }
-  @keyframes pullL {
-    0%,100% { transform: scaleX(-1) translateX(0) rotate(0); }
-    50% { transform: scaleX(-1) translateX(-6px) rotate(-6deg); }
+  .score-item {
+    text-align: center;
   }
+  .score-item h3 { font-size: 0.9em; opacity: 0.8; }
+  .score-item .num { font-size: 2em; font-weight: bold; }
 
-  .tag {
-    position:absolute; top:12px; padding:6px 16px;
-    border-radius:20px; font-weight:bold; font-size:.9em;
-    box-shadow: 0 3px 10px rgba(0,0,0,.3);
+  /* Pertanyaan */
+  .question-box {
+    background: rgba(255,255,255,0.15);
+    padding: 25px;
+    border-radius: 15px;
+    backdrop-filter: blur(10px);
+    margin-bottom: 20px;
   }
-  .tag.t-left { left:12px; background:#27ae60; }
-  .tag.t-right { right:12px; background:#e74c3c; }
+  .question-number {
+    color: #f1c40f;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+  .question-text {
+    font-size: 1.2em;
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+  .options {
+    display: grid;
+    gap: 10px;
+  }
+  .option {
+    background: rgba(255,255,255,0.2);
+    border: 2px solid rgba(255,255,255,0.3);
+    padding: 15px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+    color: #fff;
+    text-align: left;
+    font-size: 1em;
+  }
+  .option:hover:not(:disabled) {
+    background: rgba(255,255,255,0.3);
+    transform: translateX(5px);
+  }
+  .option.correct {
+    background: rgba(46, 204, 113, 0.7);
+    border-color: #27ae60;
+  }
+  .option.wrong {
+    background: rgba(231, 76, 60, 0.7);
+    border-color: #c0392b;
+  }
+  .option:disabled { cursor: not-allowed; }
 
-  /* ===== SCOREBOARD ===== */
-  .scores {
-    display:flex; gap:10px; margin-bottom:15px;
-  }
-  .score-card {
-    flex:1; text-align:center; padding:12px;
-    background: rgba(255,255,255,.08);
-    border:1px solid rgba(255,255,255,.15);
-    border-radius:14px; backdrop-filter: blur(6px);
-  }
-  .score-card small { opacity:.75; display:block; margin-bottom:2px; }
-  .score-card b { font-size:1.8em; }
-  .score-card.green b { color:#2ecc71; }
-  .score-card.red b { color:#e74c3c; }
-  .score-card.gold b { color:#f1c40f; }
-
-  /* ===== QUIZ ===== */
-  .quiz {
-    background: rgba(255,255,255,.07);
-    border:1px solid rgba(255,255,255,.15);
-    border-radius:16px; padding:22px;
-    backdrop-filter: blur(8px);
-  }
-  .q-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
-  .q-badge {
-    background:#f1c40f; color:#2c3e50; font-weight:bold;
-    padding:5px 14px; border-radius:20px; font-size:.9em;
-  }
-  .dots { display:flex; gap:6px; }
-  .dot { width:12px; height:12px; border-radius:50%; background:rgba(255,255,255,.25); transition:.3s; }
-  .dot.done-ok { background:#2ecc71; }
-  .dot.done-no { background:#e74c3c; }
-  .dot.active { background:#f1c40f; transform:scale(1.3); }
-
-  .q-text { font-size:1.15em; line-height:1.55; margin-bottom:18px; }
-  .opts { display:grid; gap:10px; }
-  .opt {
-    background: rgba(255,255,255,.1);
-    border:2px solid rgba(255,255,255,.2);
-    color:#fff; text-align:left; padding:13px 16px;
-    border-radius:12px; cursor:pointer; font-size:1em;
-    transition:.25s;
-  }
-  .opt:hover:not(:disabled) { background:rgba(241,196,15,.25); border-color:#f1c40f; transform:translateX(6px); }
-  .opt:disabled { cursor:default; }
-  .opt.correct { background:rgba(46,204,113,.4); border-color:#2ecc71; }
-  .opt.wrong { background:rgba(231,76,60,.4); border-color:#e74c3c; }
-
+  /* Feedback */
   .feedback {
-    margin-top:15px; padding:12px 15px; border-radius:10px;
-    font-weight:bold; text-align:center; min-height:20px;
+    text-align: center;
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 15px;
+    font-weight: bold;
+    min-height: 50px;
   }
-  .feedback.ok { background:rgba(46,204,113,.25); }
-  .feedback.no { background:rgba(231,76,60,.25); }
+  .feedback.correct { background: rgba(46, 204, 113, 0.3); }
+  .feedback.wrong { background: rgba(231, 76, 60, 0.3); }
 
-  .btn {
-    display:block; margin:18px auto 0; padding:13px 45px;
-    background:linear-gradient(90deg,#f1c40f,#e67e22);
-    color:#2c3e50; border:none; border-radius:30px;
-    font-size:1.1em; font-weight:bold; cursor:pointer;
-    transition:.3s; box-shadow:0 5px 18px rgba(241,196,15,.35);
+  /* Tombol Next */
+  .next-btn {
+    display: block;
+    margin: 20px auto;
+    padding: 12px 40px;
+    background: #f1c40f;
+    color: #2c3e50;
+    border: none;
+    border-radius: 25px;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
   }
-  .btn:hover:not(:disabled) { transform:scale(1.06); }
-  .btn:disabled { background:#7f8c8d; box-shadow:none; cursor:default; }
+  .next-btn:hover { background: #f39c12; transform: scale(1.05); }
+  .next-btn:disabled { background: #95a5a6; cursor: not-allowed; transform: none; }
 
-  /* ===== START & END ===== */
-  .screen {
-    background: rgba(255,255,255,.07);
-    border:1px solid rgba(255,255,255,.15);
-    border-radius:16px; padding:35px 25px; text-align:center;
-    backdrop-filter: blur(8px);
-  }
-  .screen h2 { color:#f1c40f; margin-bottom:15px; }
-  .rules { text-align:left; max-width:520px; margin:18px auto; line-height:2; }
-  .hidden { display:none; }
-
+  /* Modal Akhir */
   .modal {
-    position:fixed; inset:0; background:rgba(0,0,0,.85);
-    display:flex; align-items:center; justify-content:center; z-index:99;
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.8);
+    z-index: 100;
+    justify-content: center;
+    align-items: center;
   }
-  .modal-box {
-    background:linear-gradient(150deg,#2c3e50,#4a69bd);
-    border-radius:20px; padding:35px 30px; text-align:center;
-    max-width:480px; width:92%; animation:pop .5s;
-    box-shadow:0 20px 60px rgba(0,0,0,.6);
+  .modal.show { display: flex; }
+  .modal-content {
+    background: linear-gradient(135deg, #2c3e50, #4a69bd);
+    padding: 40px;
+    border-radius: 20px;
+    text-align: center;
+    max-width: 500px;
+    animation: pop 0.5s;
   }
-  @keyframes pop { from { transform:scale(.3); opacity:0; } }
-  .modal-box .big { font-size:4.5em; margin-bottom:10px; }
-  .modal-box h2 { font-size:2em; margin-bottom:12px; }
-  .modal-box p { line-height:1.7; margin-bottom:20px; }
+  @keyframes pop {
+    0% { transform: scale(0); }
+    100% { transform: scale(1); }
+  }
+  .modal-content h2 { font-size: 2.5em; margin-bottom: 15px; }
+  .modal-content p { margin-bottom: 20px; line-height: 1.6; }
+  .emoji-big { font-size: 5em; margin-bottom: 20px; }
 
-  .shake { animation: shake .5s; }
-  @keyframes shake {
-    0%,100%{transform:translateX(0);} 25%{transform:translateX(-8px);} 75%{transform:translateX(8px);}
+  .start-screen {
+    text-align: center;
+    padding: 40px 20px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 15px;
+    backdrop-filter: blur(10px);
   }
+  .start-screen h2 { margin-bottom: 20px; color: #f1c40f; }
+  .start-screen ul { text-align: left; margin: 20px auto; max-width: 500px; line-height: 1.8; }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <h1>🪢 TARIK TAMBANG 🪢</h1>
-    <p>Kebutuhan Dasar Manusia • SMK Keperawatan Kelas X</p>
-  </header>
+<div class="container">
+  <h1>🪢 Tarik Tambang 🪢</h1>
+  <p class="subtitle">Materi Kebutuhan Dasar Manusia - Keperawatan SMK Kelas X</p>
 
-  <!-- ARENA -->
-  <div class="arena">
-    <div class="sun"></div>
-    <div class="cloud c1">☁️</div>
-    <div class="cloud c2">☁️</div>
-    <div class="goal g-left">🏆</div>
-    <div class="goal g-right">🏆</div>
-    <div class="tag t-left">👦 SISWA</div>
-    <div class="tag t-right">🤖 KOMPUTER</div>
-    <div class="center-mark"></div>
-    <div class="center-flag">🚩</div>
-    <div class="tug-group" id="tugGroup">
-      <div class="rope"></div>
-      <div class="knot"></div>
-      <div class="crew left"><span>🧑‍⚕️</span></div>
-      <div class="crew right"><span>🤖</span></div>
-    </div>
+  <!-- Layar Mulai -->
+  <div id="startScreen" class="start-screen">
+    <h2>Selamat Datang, Calon Perawat!</h2>
+    <p>Kamu akan bertanding tarik tambang melawan KOMPUTER 🤖</p>
+    <ul>
+      <li>👦 <b>Tim Kiri (Siswa)</b> vs 🤖 <b>Tim Kanan (Komputer)</b></li>
+      <li>✅ Jawaban <b>BENAR</b> → Tali bergerak ke kiri (kamu unggul)</li>
+      <li>❌ Jawaban <b>SALAH</b> → Tali bergerak ke kanan (komputer unggul)</li>
+      <li>🏆 Jawab <b>SEMUA 5 pertanyaan BENAR</b> untuk MENANG!</li>
+    </ul>
+    <button class="next-btn" onclick="startGame()">🎮 MULAI BERMAIN</button>
   </div>
 
-  <!-- SKOR -->
-  <div class="scores">
-    <div class="score-card green"><small>✅ BENAR (Siswa)</small><b id="sLeft">0</b></div>
-    <div class="score-card gold"><small>📝 SOAL</small><b id="sNum">1/5</b></div>
-    <div class="score-card red"><small>❌ SALAH (Komputer)</small><b id="sRight">0</b></div>
-  </div>
-
-  <!-- START -->
-  <div class="screen" id="startScreen">
-    <h2>Siap Bertanding, Calon Perawat? 🩺</h2>
-    <p>Tarik tambang melawan <b>KOMPUTER</b> dengan menjawab soal kebutuhan dasar manusia!</p>
-    <div class="rules">
-      ✅ Jawaban <b>BENAR</b> → tali tertarik ke <b>KIRI</b> (siswa unggul)<br>
-      ❌ Jawaban <b>SALAH</b> → tali tertarik ke <b>KANAN</b> (komputer unggul)<br>
-      🏆 Jawab <b>5 soal BENAR semua</b> → SISWA MENANG!<br>
-      ⚡ Ada waktu <b>30 detik</b> per soal, jangan lama-lama!
+  <!-- Area Game -->
+  <div id="gameArea" style="display:none;">
+    <!-- Arena -->
+    <div class="arena">
+      <div class="team-label label-left">👦 SISWA</div>
+      <div class="team-label label-right">🤖 KOMPUTER</div>
+      <div class="team team-left" id="teamLeft">🧍‍♂️</div>
+      <div class="team team-right" id="teamRight">🤖</div>
+      <div class="center-line"></div>
+      <div class="rope" id="rope"></div>
+      <div class="flag" id="flag">🚩</div>
     </div>
-    <button class="btn" onclick="startGame()">🎮 MULAI BERMAIN</button>
-  </div>
 
-  <!-- QUIZ -->
-  <div class="quiz hidden" id="quizBox">
-    <div class="q-head">
-      <span class="q-badge" id="qBadge">Soal 1</span>
-      <div class="dots" id="dots"></div>
-      <span class="q-badge" style="background:#e67e22;color:#fff;">⏱️ <span id="timer">30</span>s</span>
+    <!-- Skor -->
+    <div class="score-board">
+      <div class="score-item">
+        <h3>✅ Benar (Siswa)</h3>
+        <div class="num" id="scoreLeft">0</div>
+      </div>
+      <div class="score-item">
+        <h3>❌ Salah (Komputer)</h3>
+        <div class="num" id="scoreRight">0</div>
+      </div>
+      <div class="score-item">
+        <h3>📝 Soal ke</h3>
+        <div class="num" id="questionNum">1/5</div>
+      </div>
     </div>
-    <div class="q-text" id="qText"></div>
-    <div class="opts" id="opts"></div>
-    <div class="feedback" id="feedback"></div>
-    <button class="btn hidden" id="nextBtn" onclick="nextQ()">Soal Berikutnya ➡️</button>
+
+    <!-- Pertanyaan -->
+    <div class="question-box">
+      <div class="question-number" id="qNumber">Pertanyaan 1</div>
+      <div class="question-text" id="qText"></div>
+      <div class="options" id="options"></div>
+      <div class="feedback" id="feedback"></div>
+    </div>
+
+    <button class="next-btn" id="nextBtn" onclick="nextQuestion()" disabled>Soal Berikutnya ➡️</button>
   </div>
 </div>
 
-<!-- MODAL AKHIR -->
-<div class="modal hidden" id="endModal">
-  <div class="modal-box">
-    <div class="big" id="endEmoji">🏆</div>
-    <h2 id="endTitle"></h2>
-    <p id="endMsg"></p>
-    <button class="btn" onclick="location.reload()">🔄 Main Lagi</button>
+<!-- Modal Akhir -->
+<div class="modal" id="endModal">
+  <div class="modal-content">
+    <div class="emoji-big" id="endEmoji">🏆</div>
+    <h2 id="endTitle">Selamat!</h2>
+    <p id="endMessage"></p>
+    <button class="next-btn" onclick="location.reload()">🔄 Main Lagi</button>
   </div>
 </div>
 
 <script>
-const questions = [
-  {
-    q: "Menurut teori Abraham Maslow, kebutuhan dasar manusia yang paling mendasar dan harus dipenuhi pertama kali adalah...",
-    o: ["Kebutuhan aktualisasi diri","Kebutuhan fisiologis (oksigen, cairan, nutrisi, istirahat)","Kebutuhan rasa aman","Kebutuhan harga diri"],
-    a: 1
-  },
-  {
-    q: "Seorang pasien di rawat di RS mengeluh lemas karena tidak mau makan dan minum akibat mual. Kebutuhan dasar yang terganggu adalah...",
-    o: ["Kebutuhan kasih sayang","Kebutuhan harga diri","Kebutuhan fisiologis","Kebutuhan aktualisasi diri"],
-    a: 2
-  },
-  {
-    q: "Berikut ini yang termasuk contoh kebutuhan fisiologis adalah...",
-    o: ["Oksigen, cairan & elektrolit, nutrisi, suhu tubuh, eliminasi, istirahat","Cinta, persahabatan, dan kekeluargaan","Penghargaan, prestasi, dan pengakuan","Rasa aman dan perlindungan"],
-    a: 0
-  },
-  {
-    q: "Pasien baru masuk RS merasa cemas dan takut dengan lingkungan yang asing. Kebutuhan yang perlu dipenuhi perawat adalah...",
-    o: ["Kebutuhan aktualisasi diri","Kebutuhan fisiologis","Kebutuhan rasa aman dan nyaman","Kebutuhan harga diri"],
-    a: 2
-  },
-  {
-    q: "Urutan hierarki kebutuhan dasar manusia menurut Maslow dari yang TERENDAH ke TERTINGGI adalah...",
-    o: ["Aktualisasi diri → Harga diri → Kasih sayang → Rasa aman → Fisiologis","Fisiologis → Rasa aman → Kasih sayang → Harga diri → Aktualisasi diri","Rasa aman → Fisiologis → Harga diri → Kasih sayang → Aktualisasi diri","Kasih sayang → Fisiologis → Rasa aman → Aktualisasi diri → Harga diri"],
-    a: 1
+  // Bank soal - Kebutuhan Dasar Manusia (Teori Abraham Maslow)
+  const questions = [
+    {
+      q: "Menurut teori Abraham Maslow, kebutuhan dasar manusia yang paling utama dan harus dipenuhi pertama kali adalah...",
+      options: [
+        "Kebutuhan aktualisasi diri",
+        "Kebutuhan fisiologis (makan, minum, oksigen, istirahat)",
+        "Kebutuhan rasa aman",
+        "Kebutuhan harga diri"
+      ],
+      answer: 1
+    },
+    {
+      q: "Seorang pasien di rumah sakit tidak mau makan dan minum karena mual. Kebutuhan dasar manusia yang terganggu adalah...",
+      options: [
+        "Kebutuhan kasih sayang",
+        "Kebutuhan harga diri",
+        "Kebutuhan fisiologis",
+        "Kebutuhan aktualisasi diri"
+      ],
+      answer: 2
+    },
+    {
+      q: "Berikut ini yang termasuk kebutuhan fisiologis adalah...",
+      options: [
+        "Oksigen, cairan & elektrolit, nutrisi, suhu tubuh, eliminasi, istirahat",
+        "Cinta, persahabatan, dan keluarga",
+        "Penghargaan dan prestasi",
+        "Rasa aman dan nyaman"
+      ],
+      answer: 0
+    },
+    {
+      q: "Seorang pasien baru masuk rumah sakit merasa cemas dan takut terhadap lingkungan yang asing. Kebutuhan yang perlu dipenuhi perawat adalah...",
+      options: [
+        "Kebutuhan aktualisasi diri",
+        "Kebutuhan fisiologis",
+        "Kebutuhan rasa aman dan nyaman",
+        "Kebutuhan harga diri"
+      ],
+      answer: 2
+    },
+    {
+      q: "Urutan hierarki kebutuhan dasar manusia menurut Maslow dari yang terendah adalah...",
+      options: [
+        "Aktualisasi diri → Harga diri → Kasih sayang → Rasa aman → Fisiologis",
+        "Fisiologis → Rasa aman → Kasih sayang → Harga diri → Aktualisasi diri",
+        "Rasa aman → Fisiologis → Harga diri → Kasih sayang → Aktualisasi diri",
+        "Kasih sayang → Fisiologis → Rasa aman → Aktualisasi diri → Harga diri"
+      ],
+      answer: 1
+    }
+  ];
+
+  let currentQ = 0;
+  let scoreLeft = 0;
+  let scoreRight = 0;
+  let answered = false;
+
+  function startGame() {
+    document.getElementById('startScreen').style.display = 'none';
+    document.getElementById('gameArea').style.display = 'block';
+    loadQuestion();
   }
-];
 
-let cur = 0, sL = 0, sR = 0, answered = false, timerId = null, timeLeft = 30;
+  function loadQuestion() {
+    answered = false;
+    const q = questions[currentQ];
+    document.getElementById('qNumber').textContent = `Pertanyaan ${currentQ + 1}`;
+    document.getElementById('qText').textContent = q.q;
+    document.getElementById('questionNum').textContent = `${currentQ + 1}/5`;
+    document.getElementById('feedback').textContent = '';
+    document.getElementById('feedback').className = 'feedback';
+    document.getElementById('nextBtn').disabled = true;
 
-function startGame(){
-  document.getElementById('startScreen').classList.add('hidden');
-  document.getElementById('quizBox').classList.remove('hidden');
-  buildDots();
-  loadQ();
-}
-
-function buildDots(){
-  const d = document.getElementById('dots');
-  d.innerHTML = '';
-  questions.forEach(()=>{
-    const s = document.createElement('span');
-    s.className = 'dot';
-    d.appendChild(s);
-  });
-}
-
-function loadQ(){
-  answered = false;
-  timeLeft = 30;
-  document.getElementById('timer').textContent = timeLeft;
-  clearInterval(timerId);
-  timerId = setInterval(tick, 1000);
-
-  const q = questions[cur];
-  document.getElementById('qBadge').textContent = 'Soal ' + (cur+1);
-  document.getElementById('sNum').textContent = (cur+1) + '/5';
-  document.getElementById('qText').textContent = q.q;
-  document.getElementById('feedback').textContent = '';
-  document.getElementById('feedback').className = 'feedback';
-  document.getElementById('nextBtn').classList.add('hidden');
-
-  document.querySelectorAll('.dot').forEach((d,i)=>{
-    d.classList.toggle('active', i === cur);
-  });
-
-  const box = document.getElementById('opts');
-  box.innerHTML = '';
-  q.o.forEach((txt,i)=>{
-    const b = document.createElement('button');
-    b.className = 'opt';
-    b.textContent = String.fromCharCode(65+i) + '. ' + txt;
-    b.onclick = ()=>answer(i,b);
-    box.appendChild(b);
-  });
-}
-
-function tick(){
-  timeLeft--;
-  document.getElementById('timer').textContent = timeLeft;
-  if(timeLeft <= 0){
-    clearInterval(timerId);
-    timeUp();
+    const optDiv = document.getElementById('options');
+    optDiv.innerHTML = '';
+    q.options.forEach((opt, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'option';
+      btn.textContent = String.fromCharCode(65 + i) + '. ' + opt;
+      btn.onclick = () => selectAnswer(i, btn);
+      optDiv.appendChild(btn);
+    });
   }
-}
 
-function timeUp(){
-  if(answered) return;
-  answered = true;
-  sR++;
-  const btns = document.querySelectorAll('.opt');
-  btns.forEach((b,i)=>{
-    b.disabled = true;
-    if(i === questions[cur].a) b.classList.add('correct');
-  });
-  markDot(false);
-  const fb = document.getElementById('feedback');
-  fb.textContent = '⏰ WAKTU HABIS! Tali tertarik ke komputer!';
-  fb.className = 'feedback no';
-  document.querySelector('.arena').classList.add('shake');
-  setTimeout(()=>document.querySelector('.arena').classList.remove('shake'), 500);
-  pullRope();
-  finishQ();
-}
+  function selectAnswer(idx, btn) {
+    if (answered) return;
+    answered = true;
+    const q = questions[currentQ];
+    const allBtns = document.querySelectorAll('.option');
+    allBtns.forEach(b => b.disabled = true);
 
-function answer(i, btn){
-  if(answered) return;
-  answered = true;
-  clearInterval(timerId);
+    const feedback = document.getElementById('feedback');
 
-  const q = questions[cur];
-  const btns = document.querySelectorAll('.opt');
-  btns.forEach(b=>b.disabled = true);
+    if (idx === q.answer) {
+      btn.classList.add('correct');
+      scoreLeft++;
+      feedback.textContent = '✅ BENAR! Tali bergerak ke arahmu! 💪';
+      feedback.className = 'feedback correct';
+      moveRope('left');
+    } else {
+      btn.classList.add('wrong');
+      allBtns[q.answer].classList.add('correct');
+      scoreRight++;
+      feedback.textContent = '❌ SALAH! Tali bergerak ke komputer! 🤖';
+      feedback.className = 'feedback wrong';
+      moveRope('right');
+    }
 
-  const fb = document.getElementById('feedback');
-  if(i === q.a){
-    sL++;
-    btn.classList.add('correct');
-    fb.textContent = '✅ BENAR! Tali bergerak ke arahmu! 💪';
-    fb.className = 'feedback ok';
-    markDot(true);
-  } else {
-    sR++;
-    btn.classList.add('wrong');
-    btns[q.a].classList.add('correct');
-    fb.textContent = '❌ SALAH! Tali tertarik ke komputer!';
-    fb.className = 'feedback no';
-    markDot(false);
-    document.querySelector('.arena').classList.add('shake');
-    setTimeout(()=>document.querySelector('.arena').classList.remove('shake'), 500);
+    document.getElementById('scoreLeft').textContent = scoreLeft;
+    document.getElementById('scoreRight').textContent = scoreRight;
+
+    if (currentQ < questions.length - 1) {
+      document.getElementById('nextBtn').disabled = false;
+    } else {
+      setTimeout(showEnd, 1500);
+    }
   }
-  pullRope();
-  finishQ();
-}
 
-function markDot(ok){
-  const dots = document.querySelectorAll('.dot');
-  dots[cur].classList.remove('active');
-  dots[cur].classList.add(ok ? 'done-ok' : 'done-no');
-}
-
-function pullRope(){
-  document.getElementById('sLeft').textContent = sL;
-  document.getElementById('sRight').textContent = sR;
-  const diff = sL - sR;                 // positif = ke kiri (siswa unggul)
-  const maxShift = 180;                 // batas geser (px)
-  const shift = Math.max(-maxShift, Math.min(maxShift, diff * 70));
-  document.getElementById('tugGroup').style.transform = 'translateX(' + shift + 'px)';
-}
-
-function finishQ(){
-  if(cur < questions.length - 1){
-    document.getElementById('nextBtn').classList.remove('hidden');
-  } else {
-    setTimeout(showEnd, 1600);
+  function moveRope(direction) {
+    const flag = document.getElementById('flag');
+    const teamLeft = document.getElementById('teamLeft');
+    const teamRight = document.getElementById('teamRight');
+    
+    // Hitung posisi berdasarkan selisih skor (setiap benar +1 ke kiri, setiap salah +1 ke kanan)
+    const diff = scoreLeft - scoreRight; // -5 sampai +5
+    const offset = diff * 80; // pixel per poin
+    
+    flag.style.left = `calc(50% + ${offset}px)`;
+    
+    // Animasi tim
+    if (direction === 'left') {
+      teamLeft.style.transform = 'translateX(-20px) scale(1.1)';
+      teamRight.style.transform = 'translateX(20px)';
+    } else {
+      teamRight.style.transform = 'translateX(20px) scale(1.1)';
+      teamLeft.style.transform = 'translateX(-20px)';
+    }
+    
+    setTimeout(() => {
+      teamLeft.style.transform = '';
+      teamRight.style.transform = '';
+    }, 800);
   }
-}
 
-function nextQ(){
-  cur++;
-  loadQ();
-}
-
-function showEnd(){
-  clearInterval(timerId);
-  const em = document.getElementById('endEmoji');
-  const ti = document.getElementById('endTitle');
-  const ms = document.getElementById('endMsg');
-
-  if(sL === 5){
-    em.textContent = '🏆';
-    ti.textContent = 'SISWA MENANG! 🎉';
-    ti.style.color = '#2ecc71';
-    ms.innerHTML = 'LUAR BIASA! Semua <b>5 soal dijawab BENAR</b> dan tali berhasil kamu tarik penuh ke kiri!<br><br>📚 <b>Ringkasan Maslow:</b><br>Fisiologis → Rasa Aman → Kasih Sayang → Harga Diri → Aktualisasi Diri<br><br>Kamu siap jadi perawat hebat! 👨‍⚕️👩‍⚕️';
-  } else if(sL > sR){
-    em.textContent = '🥈';
-    ti.textContent = 'Kamu Unggul!';
-    ti.style.color = '#f1c40f';
-    ms.innerHTML = 'Skor akhir: <b>Siswa ' + sL + ' – ' + sR + ' Komputer</b><br><br>Kamu menang, tapi belum sempurna. Pelajari lagi hierarki Maslow agar bisa menang telak! 💪';
-  } else if(sL === sR){
-    em.textContent = '🤝';
-    ti.textContent = 'SERI!';
-    ti.style.color = '#3498db';
-    ms.innerHTML = 'Skor akhir: <b>Siswa ' + sL + ' – ' + sR + ' Komputer</b><br><br>Tali tetap di tengah! Pelajari lagi materinya dan coba lagi ya!';
-  } else {
-    em.textContent = '🤖';
-    ti.textContent = 'Komputer Menang';
-    ti.style.color = '#e74c3c';
-    ms.innerHTML = 'Skor akhir: <b>Siswa ' + sL + ' – ' + sR + ' Komputer</b><br><br>Jangan menyerah! Ingat urutan Maslow:<br>1️⃣ Fisiologis 2️⃣ Rasa Aman 3️⃣ Kasih Sayang 4️⃣ Harga Diri 5️⃣ Aktualisasi Diri<br><br>Ayo coba lagi! 🔥';
+  function nextQuestion() {
+    currentQ++;
+    loadQuestion();
   }
-  document.getElementById('endModal').classList.remove('hidden');
-}
+
+  function showEnd() {
+    const modal = document.getElementById('endModal');
+    const emoji = document.getElementById('endEmoji');
+    const title = document.getElementById('endTitle');
+    const msg = document.getElementById('endMessage');
+
+    if (scoreLeft === 5) {
+      emoji.textContent = '🏆';
+      title.textContent = 'KAMU MENANG! 🎉';
+      title.style.color = '#2ecc71';
+      msg.innerHTML = `Luar biasa! Kamu menjawab <b>SEMUA 5 pertanyaan dengan benar</b>!<br><br>
+        Kamu telah menguasai materi <b>Kebutuhan Dasar Manusia</b> menurut teori Abraham Maslow.<br><br>
+        📚 <b>Ringkasan:</b><br>
+        Hierarki kebutuhan: Fisiologis → Rasa Aman → Kasih Sayang → Harga Diri → Aktualisasi Diri<br><br>
+        Sebagai calon perawat, pemahaman ini penting untuk memberikan asuhan keperawatan yang holistik! 👨‍⚕️`;
+    } else if (scoreLeft > scoreRight) {
+      emoji.textContent = '👍';
+      title.textContent = 'Kamu Unggul!';
+      title.style.color = '#f1c40f';
+      msg.innerHTML = `Bagus! Skor akhir: <b>Siswa ${scoreLeft} - ${scoreRight} Komputer</b><br><br>
+        Kamu unggul, tapi masih ada pertanyaan yang perlu dipelajari lagi.<br>
+        Terus belajar untuk menguasai materi kebutuhan dasar manusia! 💪`;
+    } else if (scoreLeft === scoreRight) {
+      emoji.textContent = '🤝';
+      title.textContent = 'SERI!';
+      title.style.color = '#3498db';
+      msg.innerHTML = `Skor akhir: <b>Siswa ${scoreLeft} - ${scoreRight} Komputer</b><br><br>
+        Pertandingan berakhir seri. Pelajari kembali materi kebutuhan dasar manusia dan coba lagi!`;
+    } else {
+      emoji.textContent = '🤖';
+      title.textContent = 'Komputer Menang';
+      title.style.color = '#e74c3c';
+      msg.innerHTML = `Skor akhir: <b>Siswa ${scoreLeft} - ${scoreRight} Komputer</b><br><br>
+        Jangan menyerah! Pelajari kembali materi <b>Kebutuhan Dasar Manusia</b> menurut Maslow:<br>
+        1️⃣ Fisiologis<br>
+        2️⃣ Rasa Aman<br>
+        3️⃣ Kasih Sayang<br>
+        4️⃣ Harga Diri<br>
+        5️⃣ Aktualisasi Diri<br><br>
+        Coba lagi ya! 💪`;
+    }
+
+    modal.classList.add('show');
+  }
 </script>
 </body>
 </html>
