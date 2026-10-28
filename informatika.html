@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>💰 Millionaire - Informatika | SMK Kelas X</title>
+<title>💰 Millionaire - Informatika | SMK Kelas X (dengan Musik)</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
   body {
@@ -26,7 +26,6 @@
   .game-grid { display:grid; grid-template-columns:1fr 250px; gap:16px; }
   @media(max-width:900px){ .game-grid { grid-template-columns:1fr; } }
 
-  /* ===== Lifelines ===== */
   .topbar { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:14px; }
   .lifelines { display:flex; gap:12px; }
   .life {
@@ -40,14 +39,18 @@
   .life.used { filter:grayscale(1) brightness(.5); cursor:not-allowed; border-color:#555; position:relative; }
   .life.used::after { content:'✖'; position:absolute; font-size:2.4em; color:#e74c3c; }
 
+  .side-btns { display:flex; gap:8px; flex-wrap:wrap; }
   .walk-btn {
     background:linear-gradient(#c0392b,#7b241c); border:2px solid #ff8a75;
-    color:#fff; padding:10px 18px; border-radius:25px; font-weight:bold; cursor:pointer; transition:.25s;
+    color:#fff; padding:10px 16px; border-radius:25px; font-weight:bold; cursor:pointer; transition:.25s;
   }
-  .walk-btn:hover:not(:disabled){ transform:scale(1.05); }
+  .music-btn {
+    background:linear-gradient(#27ae60,#145a32); border:2px solid #7bed9f;
+    color:#fff; padding:10px 16px; border-radius:25px; font-weight:bold; cursor:pointer; transition:.25s;
+  }
+  .walk-btn:hover:not(:disabled), .music-btn:hover { transform:scale(1.05); }
   .walk-btn:disabled { opacity:.4; cursor:not-allowed; }
 
-  /* ===== Timer ===== */
   .timer-area { display:flex; align-items:center; justify-content:center; gap:14px; margin-bottom:12px; }
   .timer-circle { position:relative; width:66px; height:66px; }
   .timer-circle svg { transform:rotate(-90deg); }
@@ -57,7 +60,6 @@
   }
   .qlevel { font-size:.85em; background:rgba(255,215,0,.15); border:1px solid #ffd700; color:#ffd700; padding:5px 14px; border-radius:15px; }
 
-  /* ===== Hexagon Q & A ===== */
   .hexq {
     clip-path:polygon(3% 0,97% 0,100% 50%,97% 100%,3% 100%,0 50%);
     background:linear-gradient(90deg,#0c2f66,#123f8a,#0c2f66);
@@ -93,7 +95,6 @@
   .msg { font-weight:bold; font-size:1.05em; }
   .msg.ok { color:#2ecc71; } .msg.no { color:#e74c3c; }
 
-  /* ===== Ladder ===== */
   .ladder {
     background:rgba(0,20,50,.6); border:1px solid rgba(100,170,255,.3);
     border-radius:14px; padding:12px; backdrop-filter:blur(4px);
@@ -111,11 +112,8 @@
     opacity:1; background:linear-gradient(90deg,#b8860b,#ffd700,#b8860b); color:#1a1a1a;
     font-weight:bold; box-shadow:0 0 12px rgba(255,215,0,.6);
   }
-  @media(max-width:900px){
-    .ladder { max-height:200px; }
-  }
+  @media(max-width:900px){ .ladder { max-height:200px; } }
 
-  /* ===== Modals ===== */
   .modal {
     position:fixed; inset:0; background:rgba(0,5,20,.9); z-index:100;
     display:flex; align-items:center; justify-content:center; padding:15px;
@@ -136,12 +134,8 @@
     cursor:pointer; transition:.25s; margin:5px;
   }
   .btn-gold:hover { transform:scale(1.06); }
-  .btn-grey {
-    background:#34495e; color:#fff; border:none; padding:12px 26px;
-    border-radius:28px; font-weight:bold; cursor:pointer; margin:5px;
-  }
+  .btn-grey { background:#34495e; color:#fff; border:none; padding:12px 26px; border-radius:28px; font-weight:bold; cursor:pointer; margin:5px; }
 
-  /* Audience chart */
   .chart { display:flex; justify-content:space-around; align-items:flex-end; height:170px; margin:18px 0; gap:10px; }
   .bar-wrap { display:flex; flex-direction:column; align-items:center; flex:1; height:100%; justify-content:flex-end; }
   .bar {
@@ -151,7 +145,6 @@
   }
   .bar-lbl { margin-top:6px; font-weight:bold; color:#ffd700; }
 
-  /* Phone */
   .phone-friend { font-size:3.4em; animation:ring .6s infinite; display:inline-block; }
   @keyframes ring { 0%,100%{transform:rotate(0);} 25%{transform:rotate(-12deg);} 75%{transform:rotate(12deg);} }
   .bubble {
@@ -171,22 +164,23 @@
 <div class="wrap">
   <header>
     <h1>💰 WHO WANTS TO BE A MILLIONAIRE 💰</h1>
-    <p>Edisi Informatika • SMK Kelas X</p>
+    <p>Edisi Informatika • SMK Kelas X • 🎵 Musik Dramatis</p>
   </header>
 
   <div class="game-grid">
     <main>
-      <!-- Lifelines -->
       <div class="topbar">
         <div class="lifelines">
           <div class="life" id="life50" title="50:50" onclick="useFifty()">50:50</div>
           <div class="life" id="lifePhone" title="Call a Friend" onclick="usePhone()">📞</div>
           <div class="life" id="lifeAud" title="Ask the Audience" onclick="useAudience()">👥</div>
         </div>
-        <button class="walk-btn" id="walkBtn" onclick="askWalk()">🏳️ BERHENTI & BAWA UANG</button>
+        <div class="side-btns">
+          <button class="music-btn" id="musicBtn" onclick="toggleMusic()">🎵 MUSIK: ON</button>
+          <button class="walk-btn" id="walkBtn" onclick="askWalk()">🏳️ BERHENTI</button>
+        </div>
       </div>
 
-      <!-- Timer -->
       <div class="timer-area">
         <span class="qlevel" id="qLevel">LEVEL MUDAH</span>
         <div class="timer-circle">
@@ -200,13 +194,11 @@
         <span class="qlevel" id="qFor">Soal 1 • Rp 100.000</span>
       </div>
 
-      <!-- Question -->
       <div class="hexq" id="qText">Tekan mulai untuk bermain</div>
       <div class="answers" id="answers"></div>
       <div class="lock-area" id="lockArea"></div>
     </main>
 
-    <!-- Ladder -->
     <aside class="ladder">
       <h3>🏆 TANGGA HADIAH</h3>
       <div id="ladderList"></div>
@@ -214,16 +206,14 @@
   </div>
 </div>
 
-<!-- START MODAL -->
 <div class="modal" id="startModal">
   <div class="mbox">
-    <div class="big-emoji">💻</div>
-    <h2>Siap Jadi Jutawan Informatika?</h2>
-    <p>Jawab <b>20 soal Informatika Kelas X</b> dengan benar semua untuk memenangkan <b>Rp 1 MILIAR!</b></p>
+    <div class="big-emoji">💰</div>
+    <h2>Siap Jadi Jutawan?</h2>
+    <p>Jawab <b>20 soal Informatika</b> dengan benar semua untuk memenangkan <b>Rp 1 MILIAR!</b><br>
+    🎵 <i>Nyalakan speaker untuk pengalaman paling menegangkan!</i></p>
     <div class="rules">
       📈 Soal makin tinggi = makin sulit & hadiah makin besar<br>
-      📚 Materi: Berpikir Komputasional, Sistem Komputer, Jaringan & Internet,<br>
-      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Aplikasi Perkantoran, Algoritma & Pemrograman, Literasi Digital<br>
       ⏱️ Waktu per level: Mudah 30s • Sedang 45s • Sulit 60s • Expert 90s<br>
       ⭐ Level 5, 10, 15 adalah <b>LEVEL AMAN</b><br>
       ❌ Jawaban salah → turun ke level aman terdekat<br>
@@ -237,7 +227,6 @@
   </div>
 </div>
 
-<!-- PHONE MODAL -->
 <div class="modal hidden" id="phoneModal">
   <div class="mbox">
     <div class="phone-friend">📞</div>
@@ -248,7 +237,6 @@
   </div>
 </div>
 
-<!-- AUDIENCE MODAL -->
 <div class="modal hidden" id="audModal">
   <div class="mbox">
     <h2>👥 Hasil Voting Penonton</h2>
@@ -257,7 +245,6 @@
   </div>
 </div>
 
-<!-- WALK CONFIRM -->
 <div class="modal hidden" id="walkModal">
   <div class="mbox">
     <div class="big-emoji">🏳️</div>
@@ -268,7 +255,6 @@
   </div>
 </div>
 
-<!-- END MODAL -->
 <div class="modal hidden" id="endModal">
   <div class="mbox">
     <div class="big-emoji" id="endEmoji">🏆</div>
@@ -294,7 +280,6 @@ const TIMES = [30,45,60,90];
 const LVLNAME = ["MUDAH 😊","SEDANG 🤔","SULIT 😰","EXPERT 🔥"];
 const FRIENDS = ["Pak Guru IT","Kak Programmer","Teman Sekelas","Admin Lab Komputer"];
 
-// 20 SOAL INFORMATIKA KELAS X SMK
 const QUESTIONS = [
  {d:1,q:"Informatika adalah bidang ilmu yang mempelajari...",
   o:["Cara memperbaiki kerusakan hardware saja","Penggunaan komputer untuk mengolah, menyimpan, dan menyebarkan data serta informasi","Teknik merakit komputer secara manual","Seni mendesain gambar di komputer"],a:1,
@@ -347,13 +332,13 @@ const QUESTIONS = [
  {d:4,q:"Perhatikan algoritma berikut:<br>1. x = 5<br>2. y = x × 2 + 3<br>3. Tampilkan y<br><br>Berapakah nilai yang akan ditampilkan?",
   o:["10","13","25","18"],a:1,
   h:"Hitung berurutan: x = 5, lalu y = 5 × 2 + 3 = 10 + 3 = 13."},
- {d:4,q:"Kejahatan siber yang mengelabui korban untuk mencuri data pribadi (seperti password) melalui tautan palsu yang menyerupai situs resmi disebut...",
+ {d:4,q:"Kejahatan siber yang mengelabui korban untuk mencuri data pribadi melalui tautan palsu yang menyerupai situs resmi disebut...",
   o:["Carding","Spamming","Phishing","Hacking"],a:2,
   h:"Phishing dari kata 'fishing' (memancing), memancing korban mengklik link palsu."},
  {d:4,q:"Urutan tahapan yang benar dalam pengembangan perangkat lunak (SDLC) adalah...",
   o:["Analisis → Desain → Pengembangan → Pengujian → Implementasi","Desain → Analisis → Pengujian → Implementasi → Pengembangan","Pengembangan → Analisis → Desain → Implementasi → Pengujian","Implementasi → Pengujian → Analisis → Desain → Pengembangan"],a:0,
   h:"SDLC dimulai dari analisis kebutuhan, lalu desain, pengembangan, pengujian, implementasi."},
- {d:4,q:"Teknologi yang memungkinkan benda-benda sehari-hari (lampu, AC, CCTV) terhubung ke internet untuk bertukar data dan dikendalikan dari jarak jauh disebut...",
+ {d:4,q:"Teknologi yang memungkinkan benda-benda sehari-hari terhubung ke internet untuk bertukar data dan dikendalikan dari jarak jauh disebut...",
   o:["Artificial Intelligence (AI)","Virtual Reality (VR)","Blockchain","Internet of Things (IoT)"],a:3,
   h:"Benda sehari-hari yang terhubung ke internet = Internet of Things, contohnya smart home."}
 ];
@@ -364,20 +349,178 @@ let sel=-1, locked=false, hidden50=[];
 let life = {fifty:true, phone:true, aud:true};
 let AC = null;
 
-// ================= SOUND =================
+// =========================================================
+// ============ MESIN MUSIK & SUARA (Web Audio) ============
+// Musik orisinal bergaya kuis dramatis (bukan lagu berhak cipta)
+// =========================================================
+let musicOn=true, musicStarted=false, musicGain=null;
+let chordTimer=null, pulseTimer=null, chordIdx=0, pulseHigh=false;
+
 function ac(){ if(!AC) AC=new (window.AudioContext||window.webkitAudioContext)(); return AC; }
-function tone(f,d,type='sine',v=0.12,when=0){
+function ensureAudio(){ const c=ac(); if(c.state==='suspended') c.resume(); return c; }
+
+// satu nada sederhana
+function note(f,d,type,v,when){
   try{ const c=ac(), o=c.createOscillator(), g=c.createGain();
-  o.type=type; o.frequency.value=f; g.gain.value=v;
+  o.type=type; o.frequency.value=f;
+  g.gain.setValueAtTime(0.0001,when);
+  g.gain.linearRampToValueAtTime(v,when+0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001,when+d);
   o.connect(g); g.connect(c.destination);
-  o.start(c.currentTime+when); g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+when+d);
-  o.stop(c.currentTime+when+d);}catch(e){}
+  o.start(when); o.stop(when+d+0.05);}catch(e){}
 }
-const sndSel=()=>tone(700,.1,'triangle');
-const sndTick=()=>tone(1100,.05,'square',.06);
-const sndCorrect=()=>{tone(523,.15);tone(659,.15,'sine',.12,.15);tone(784,.3,'sine',.12,.3);};
-const sndWrong=()=>{tone(300,.3,'sawtooth',.15);tone(200,.5,'sawtooth',.15,.25);};
-const sndLife=()=>{tone(880,.12,'triangle');tone(1320,.2,'triangle',.1,.12);};
+
+// --- MUSIK LATAR: progresi minor dramatis (orisinal) ---
+const CHORDS=[
+  {bass:73.42, notes:[146.83,220.00,293.66,349.23]},  // Dm
+  {bass:58.27, notes:[116.54,174.61,233.08,293.66]},  // Bb
+  {bass:65.41, notes:[130.81,196.00,261.63,329.63]},  // C
+  {bass:55.00, notes:[110.00,164.81,220.00,277.18]}   // A (tegang)
+];
+
+function startMusic(){
+  if(musicStarted) return;
+  const c=ensureAudio();
+  musicStarted=true;
+  musicGain=c.createGain(); musicGain.gain.value=musicOn?0.9:0;
+  musicGain.connect(c.destination);
+
+  // Drone rendah "bernapas" (dua gelombang sedikit detune = bergetar)
+  const dg=c.createGain(); dg.gain.value=0.05;
+  const d1=c.createOscillator(); d1.type='sine'; d1.frequency.value=36.71; // D1
+  const d2=c.createOscillator(); d2.type='sine'; d2.frequency.value=37.15;
+  const lfo=c.createOscillator(); lfo.frequency.value=0.12;
+  const lfoG=c.createGain(); lfoG.gain.value=0.02;
+  lfo.connect(lfoG); lfoG.connect(dg.gain);
+  d1.connect(dg); d2.connect(dg); dg.connect(musicGain);
+  d1.start(); d2.start(); lfo.start();
+
+  chordTimer=setInterval(playPadChord,4000);
+  pulseTimer=setInterval(playPulse,650);
+  playPadChord();
+}
+
+function pad(freq,dur,vol,type='sawtooth'){
+  try{ const c=ac(), o=c.createOscillator(), f=c.createBiquadFilter(), g=c.createGain();
+  o.type=type; o.frequency.value=freq;
+  f.type='lowpass'; f.frequency.value=900; f.Q.value=0.7;
+  g.gain.setValueAtTime(0.0001,c.currentTime);
+  g.gain.linearRampToValueAtTime(vol,c.currentTime+0.9);
+  g.gain.setValueAtTime(vol,c.currentTime+dur-0.7);
+  g.gain.linearRampToValueAtTime(0.0001,c.currentTime+dur);
+  o.connect(f); f.connect(g); g.connect(musicGain);
+  o.start(); o.stop(c.currentTime+dur+0.1);}catch(e){}
+}
+
+function playPadChord(){
+  if(!musicOn||!musicStarted) return;
+  const ch=CHORDS[chordIdx%4]; chordIdx++;
+  ch.notes.forEach(f=>pad(f,3.9,0.016));
+  pad(ch.bass,3.9,0.03,'triangle');
+}
+
+function playPulse(){
+  if(!musicOn||!musicStarted) return;
+  try{ pulseHigh=!pulseHigh;
+  const c=ac(), o=c.createOscillator(), g=c.createGain();
+  o.type='triangle'; o.frequency.value=pulseHigh?146.83:73.42;
+  g.gain.setValueAtTime(0.032,c.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.0001,c.currentTime+0.35);
+  o.connect(g); g.connect(musicGain);
+  o.start(); o.stop(c.currentTime+0.4);}catch(e){}
+}
+
+function duckMusic(){ if(musicGain) musicGain.gain.setTargetAtTime(0.22, ac().currentTime, 0.1); }
+function unduckMusic(){ if(musicGain) musicGain.gain.setTargetAtTime(musicOn?0.9:0, ac().currentTime, 0.3); }
+function fadeOutMusic(){
+  if(musicGain) musicGain.gain.setTargetAtTime(0, ac().currentTime, 0.8);
+  clearInterval(chordTimer); chordTimer=null;
+  clearInterval(pulseTimer); pulseTimer=null;
+}
+
+function toggleMusic(){
+  musicOn=!musicOn;
+  $('musicBtn').textContent = musicOn?'🎵 MUSIK: ON':'🔇 MUSIK: OFF';
+  if(!musicStarted) return;
+  if(musicOn){
+    musicGain.gain.setTargetAtTime(0.9, ac().currentTime, 0.2);
+    if(!chordTimer){
+      chordTimer=setInterval(playPadChord,4000);
+      pulseTimer=setInterval(playPulse,650);
+    }
+  } else {
+    musicGain.gain.setTargetAtTime(0, ac().currentTime, 0.15);
+    clearInterval(chordTimer); chordTimer=null;
+    clearInterval(pulseTimer); pulseTimer=null;
+  }
+}
+
+// --- EFEK SUARA DRAMATIS (orisinal) ---
+function sndSel(){ note(700,.1,'triangle',.1,ac().currentTime); }
+
+function sndLife(){ const t=ac().currentTime; note(880,.12,'triangle',.12,t); note(1320,.2,'triangle',.1,t+.12); }
+
+// Detak jantung saat waktu menipis (lub-dub)
+function thump(when,v){
+  try{ const c=ac(), o=c.createOscillator(), g=c.createGain();
+  o.type='sine'; o.frequency.setValueAtTime(95,when);
+  o.frequency.exponentialRampToValueAtTime(45,when+0.12);
+  g.gain.setValueAtTime(v,when); g.gain.exponentialRampToValueAtTime(0.001,when+0.15);
+  o.connect(g); g.connect(c.destination); o.start(when); o.stop(when+0.2);}catch(e){}
+}
+function sndHeart(){ const t=ac().currentTime; thump(t,.22); thump(t+.2,.14); }
+
+// KUNCI JAWABAN: dentum timpani + riser menegang naik
+function sndLockIn(){
+  try{ const c=ac(), t=c.currentTime;
+  const o=c.createOscillator(), g=c.createGain();
+  o.type='sine'; o.frequency.setValueAtTime(160,t);
+  o.frequency.exponentialRampToValueAtTime(50,t+0.5);
+  g.gain.setValueAtTime(0.5,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.65);
+  o.connect(g); g.connect(c.destination); o.start(t); o.stop(t+0.7);
+
+  const r=c.createOscillator(), rf=c.createBiquadFilter(), rg=c.createGain();
+  r.type='sawtooth'; r.frequency.setValueAtTime(80,t);
+  r.frequency.linearRampToValueAtTime(420,t+1.5);
+  rf.type='lowpass'; rf.frequency.value=700;
+  rg.gain.setValueAtTime(0.0001,t);
+  rg.gain.linearRampToValueAtTime(0.09,t+1.4);
+  rg.gain.linearRampToValueAtTime(0.0001,t+1.6);
+  r.connect(rf); rf.connect(rg); rg.connect(c.destination);
+  r.start(t); r.stop(t+1.7);}catch(e){}
+}
+
+// BENAR: arpeggio naik + akor mayor kemenangan (orisinal)
+function sndCorrectBig(){
+  const t=ac().currentTime;
+  [293.66,440,587.33,739.99].forEach((f,i)=>note(f,.18,'triangle',.2,t+i*.11));
+  [293.66,369.99,440,587.33].forEach(f=>note(f,1.3,'sine',.08,t+.5));
+  note(1174.66,.9,'sine',.05,t+.5);
+}
+
+// SALAH: dentum rendah + disonansi dramatis (orisinal)
+function sndWrongBig(){
+  try{ const c=ac(), t=c.currentTime;
+  const o=c.createOscillator(), g=c.createGain();
+  o.type='sine'; o.frequency.setValueAtTime(130,t);
+  o.frequency.exponentialRampToValueAtTime(40,t+.9);
+  g.gain.setValueAtTime(.5,t); g.gain.exponentialRampToValueAtTime(.001,t+1);
+  o.connect(g); g.connect(c.destination); o.start(t); o.stop(t+1.1);
+  note(146.83,1.5,'square',.05,t+.15);
+  note(155.56,1.5,'square',.05,t+.15);
+  note(73.42,1.7,'sawtooth',.07,t+.15);}catch(e){}
+}
+
+// MENANG BESAR: fanfare panjang (orisinal)
+function sndWinBig(){
+  const t=ac().currentTime;
+  [293.66,329.63,369.99,440,493.88,587.33,739.99,880,1174.66]
+    .forEach((f,i)=>note(f,.22,'triangle',.16,t+i*.14));
+  [293.66,369.99,440,587.33,739.99].forEach(f=>note(f,2.2,'sine',.07,t+1.4));
+}
+
+// Naik level: lick pendek
+function sndNext(){ const t=ac().currentTime; [220,277.18,329.63].forEach((f,i)=>note(f,.12,'triangle',.12,t+i*.07)); }
 
 // ================= UTIL =================
 const $=id=>document.getElementById(id);
@@ -403,12 +546,15 @@ function prepQuestions(){
   });
 }
 function startGame(){
+  ensureAudio();      // aktifkan audio lewat klik pengguna
+  startMusic();       // mulai musik latar dramatis
   $('startModal').classList.add('hidden');
-  buildLadder(); prepQuestions(); loadQ(0);
+  buildLadder(); prepQuestions(); loadQ(0,true);
 }
 
 // ================= QUESTION FLOW =================
-function loadQ(i){
+function loadQ(i,first){
+  if(!first) sndNext();
   cur=i; sel=-1; locked=false; hidden50=[];
   const q=QUESTIONS[i];
   totalTime=TIMES[q.d-1]; timeLeft=totalTime;
@@ -450,7 +596,9 @@ function startTimer(){
   timerId=setInterval(()=>{
     timeLeft--;
     updateRing();
-    if(timeLeft<=5 && timeLeft>0) sndTick();
+    if(timeLeft<=10 && timeLeft>0){
+      timeLeft<=5 ? sndHeart() : note(1100,.05,'square',.05,ac().currentTime);
+    }
     if(timeLeft<=0){ clearInterval(timerId); timeUp(); }
   },1000);
 }
@@ -465,38 +613,42 @@ function updateRing(){
 function lockAnswer(){
   if(sel<0||locked) return;
   locked=true; clearInterval(timerId);
+  sndLockIn();          // dentum + riser menegang
+  duckMusic();          // musik mengecil saat momen menegangkan
   $('lockArea').innerHTML='<span class="msg">🤞 Semoga beruntung...</span>';
   disableAll();
-  setTimeout(()=>reveal(sel),1400);
+  setTimeout(()=>reveal(sel),1800);
 }
 
 function reveal(picked){
   const q=QUESTIONS[cur];
+  unduckMusic();
   if(picked===q.a){
     $('opt'+picked).classList.remove('sel');
     $('opt'+picked).classList.add('right');
-    sndCorrect();
+    sndCorrectBig();
     $('lockArea').innerHTML=`<span class="msg ok">✅ BENAR! Kamu meraih ${PRIZES[cur].l}</span>`;
     setTimeout(()=>{
       if(cur===19){ winGame(); }
       else {
         $('lockArea').innerHTML=`<button class="lock-btn" onclick="loadQ(${cur+1})">➡️ Lanjut ke Soal ${cur+2} (${PRIZES[cur+1].l})</button>`;
       }
-    },1900);
+    },2200);
   } else {
     if(picked>=0){ $('opt'+picked).classList.remove('sel'); $('opt'+picked).classList.add('wrongpick'); }
     $('opt'+q.a).classList.add('right');
-    sndWrong();
-    setTimeout(()=>gameOver(picked),2200);
+    sndWrongBig();
+    setTimeout(()=>gameOver(picked),2600);
   }
 }
 
 function timeUp(){
   if(locked) return;
   locked=true; disableAll();
+  unduckMusic();
   $('lockArea').innerHTML='<span class="msg no">⏰ WAKTU HABIS!</span>';
-  sndWrong();
-  setTimeout(()=>gameOver(-1),2000);
+  sndWrongBig();
+  setTimeout(()=>gameOver(-1),2400);
 }
 
 function disableAll(){ document.querySelectorAll('.hex').forEach(h=>h.disabled=true); $('walkBtn').disabled=true; }
@@ -508,6 +660,7 @@ function safeBelow(i){
 }
 
 function gameOver(picked){
+  fadeOutMusic();
   const won=safeBelow(cur);
   $('endEmoji').textContent = picked===-1 ? '⏰':'💔';
   $('endTitle').textContent='Permainan Berakhir';
@@ -521,6 +674,8 @@ function gameOver(picked){
 }
 
 function winGame(){
+  fadeOutMusic();
+  sndWinBig();
   confetti();
   $('endEmoji').textContent='🏆';
   $('endTitle').textContent='SEMPURNA! 20/20 BENAR!';
@@ -539,6 +694,8 @@ function askWalk(){
   $('walkYes').onclick=()=>{
     $('walkModal').classList.add('hidden');
     clearInterval(timerId);
+    fadeOutMusic();
+    const t=ac().currentTime; [440,349.23,293.66].forEach((f,i)=>note(f,.4,'sine',.12,t+i*.25));
     $('endEmoji').textContent='🏳️';
     $('endTitle').textContent='Keputusan Bijak!';
     $('endTitle').style.color='#3498db';
@@ -606,7 +763,7 @@ function giveFriendAnswer(friend){
     <b style="color:#ffd700">huruf ${String.fromCharCode(65+pick)}</b>. ${q.h}
     Aku sekitar ${sure}% yakin ya. Keputusan tetap di tanganmu, semangat!" 💪`;
   $('phoneClose').classList.remove('hidden');
-  tone(1046,.15,'sine',.1); tone(1318,.25,'sine',.1,.15);
+  const t=ac().currentTime; note(1046,.15,'sine',.1,t); note(1318,.25,'sine',.1,t+.15);
 }
 
 function closePhone(){
