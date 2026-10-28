@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>💰 Millionaire - Kebutuhan Dasar Manusia | SMK Keperawatan</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family:'Segoe UI', Tahoma, sans-serif;
+    background: radial-gradient(ellipse at 50% 30%, #0a3d62 0%, #041a33 55%, #010b18 100%);
+    min-height:100vh; color:#fff; padding:12px;
+  }
+  .wrap { max-width:1100px; margin:0 auto; }
+
+  header { text-align:center; margin-bottom:14px; }
+  header h1 {
+    font-size:1.8em; letter-spacing:1px;
+    background:linear-gradient(90deg,#ffd700,#fff2a8,#ffd700);
+    background-size:200%; -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+    animation:shine 4s linear infinite;
+  }
+  @keyframes shine { to { background-position:200%; } }
+  header p { opacity:.8; font-size:.9em; }
+
+  .game-grid { display:grid; grid-template-columns:1fr 250px; gap:16px; }
+  @media(max-width:900px){ .game-grid { grid-template-columns:1fr; } }
+
+  /* ===== Lifelines ===== */
+  .topbar { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:14px; }
+  .lifelines { display:flex; gap:12px; }
+  .life {
+    width:64px; height:64px; border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #1e6fd9, #0a2f6b);
+    border:3px solid #6db3ff; display:flex; align-items:center; justify-content:center;
+    font-size:1.25em; font-weight:bold; cursor:pointer; transition:.25s;
+    box-shadow:0 0 14px rgba(80,160,255,.5);
+  }
+  .life:hover:not(.used){ transform:scale(1.1); box-shadow:0 0 22px rgba(120,200,255,.9); }
+  .life.used { filter:grayscale(1) brightness(.5); cursor:not-allowed; border-color:#555; position:relative; }
+  .life.used::after { content:'✖'; position:absolute; font-size:2.4em; color:#e74c3c; }
+
+  .walk-btn {
+    background:linear-gradient(#c0392b,#7b241c); border:2px solid #ff8a75;
+    color:#fff; padding:10px 18px; border-radius:25px; font-weight:bold; cursor:pointer; transition:.25s;
+  }
+  .walk-btn:hover:not(:disabled){ transform:scale(1.05); }
+  .walk-btn:disabled { opacity:.4; cursor:not-allowed; }
+
+  /* ===== Timer ===== */
+  .timer-area { display:flex; align-items:center; justify-content:center; gap:14px; margin-bottom:12px; }
+  .timer-circle { position:relative; width:66px; height:66px; }
+  .timer-circle svg { transform:rotate(-90deg); }
+  .timer-circle .num {
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    font-size:1.35em; font-weight:bold;
+  }
+  .qlevel { font-size:.85em; background:rgba(255,215,0,.15); border:1px solid #ffd700; color:#ffd700; padding:5px 14px; border-radius:15px; }
+
+  /* ===== Hexagon Q & A ===== */
+  .hexq {
+    clip-path:polygon(3% 0,97% 0,100% 50%,97% 100%,3% 100%,0 50%);
+    background:linear-gradient(90deg,#0c2f66,#123f8a,#0c2f66);
+    padding:20px 44px; text-align:center; font-size:1.1em; line-height:1.5;
+    margin-bottom:16px; filter:drop-shadow(0 4px 10px rgba(0,60,150,.5));
+  }
+  .answers { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  @media(max-width:640px){ .answers { grid-template-columns:1fr; } }
+  .hex {
+    clip-path:polygon(6% 0,94% 0,100% 50%,94% 100%,6% 100%,0 50%);
+    background:linear-gradient(90deg,#092246,#0e3a7d,#092246);
+    border:none; color:#fff; text-align:left; cursor:pointer;
+    padding:15px 44px; font-size:.98em; transition:.2s; min-height:56px;
+  }
+  .hex b { color:#ffd700; margin-right:8px; }
+  .hex:hover:not(:disabled) { background:linear-gradient(90deg,#7a4d00,#c98a00,#7a4d00); filter:drop-shadow(0 0 12px rgba(255,200,0,.7)); }
+  .hex.sel { background:linear-gradient(90deg,#b8860b,#ffd700,#b8860b); color:#1a1a1a; filter:drop-shadow(0 0 16px rgba(255,215,0,.9)); }
+  .hex.sel b { color:#7a4d00; }
+  .hex.right { background:linear-gradient(90deg,#0f7a2f,#2ecc71,#0f7a2f); animation:flashG .4s 4; }
+  .hex.wrongpick { background:linear-gradient(90deg,#8a1c10,#e74c3c,#8a1c10); animation:flashR .4s 4; }
+  @keyframes flashG { 50% { background:#05330f; } }
+  @keyframes flashR { 50% { background:#3d0703; } }
+  .hex.hidden50 { opacity:.15; text-decoration:line-through; cursor:not-allowed; }
+  .hex:disabled { cursor:default; }
+
+  .lock-area { text-align:center; margin-top:16px; min-height:58px; }
+  .lock-btn {
+    background:linear-gradient(#ffd700,#b8860b); color:#1a1a1a; border:none;
+    padding:12px 34px; border-radius:30px; font-size:1.05em; font-weight:bold; cursor:pointer;
+    animation:pulseB 1.2s infinite; box-shadow:0 0 18px rgba(255,215,0,.6);
+  }
+  @keyframes pulseB { 50% { transform:scale(1.06); } }
+  .msg { font-weight:bold; font-size:1.05em; }
+  .msg.ok { color:#2ecc71; } .msg.no { color:#e74c3c; }
+
+  /* ===== Ladder ===== */
+  .ladder {
+    background:rgba(0,20,50,.6); border:1px solid rgba(100,170,255,.3);
+    border-radius:14px; padding:12px; backdrop-filter:blur(4px);
+    max-height:78vh; overflow-y:auto;
+  }
+  .ladder h3 { text-align:center; color:#ffd700; margin-bottom:8px; font-size:.95em; }
+  .rung {
+    display:flex; justify-content:space-between; padding:5px 10px;
+    border-radius:8px; font-size:.85em; margin-bottom:2px; opacity:.75;
+  }
+  .rung .amt { font-weight:bold; }
+  .rung.safe .amt::after { content:' ★'; color:#ffd700; }
+  .rung.past { opacity:.45; color:#7bed9f; }
+  .rung.current {
+    opacity:1; background:linear-gradient(90deg,#b8860b,#ffd700,#b8860b); color:#1a1a1a;
+    font-weight:bold; box-shadow:0 0 12px rgba(255,215,0,.6);
+  }
+  @media(max-width:900px){
+    .ladder { max-height:200px; }
+  }
+
+  /* ===== Modals ===== */
+  .modal {
+    position:fixed; inset:0; background:rgba(0,5,20,.9); z-index:100;
+    display:flex; align-items:center; justify-content:center; padding:15px;
+  }
+  .hidden { display:none !important; }
+  .mbox {
+    background:linear-gradient(150deg,#0a2f6b,#041a3d);
+    border:2px solid #3a7bd5; border-radius:18px; padding:30px 26px;
+    max-width:520px; width:100%; text-align:center; animation:pop .4s;
+    box-shadow:0 20px 70px rgba(0,50,150,.5); max-height:92vh; overflow-y:auto;
+  }
+  @keyframes pop { from { transform:scale(.4); opacity:0; } }
+  .mbox h2 { color:#ffd700; margin-bottom:12px; }
+  .mbox p { line-height:1.6; margin-bottom:14px; }
+  .btn-gold {
+    background:linear-gradient(#ffd700,#b8860b); color:#1a1a1a; border:none;
+    padding:12px 36px; border-radius:28px; font-size:1.05em; font-weight:bold;
+    cursor:pointer; transition:.25s; margin:5px;
+  }
+  .btn-gold:hover { transform:scale(1.06); }
+  .btn-grey {
+    background:#34495e; color:#fff; border:none; padding:12px 26px;
+    border-radius:28px; font-weight:bold; cursor:pointer; margin:5px;
+  }
+
+  /* Audience chart */
+  .chart { display:flex; justify-content:space-around; align-items:flex-end; height:170px; margin:18px 0; gap:10px; }
+  .bar-wrap { display:flex; flex-direction:column; align-items:center; flex:1; height:100%; justify-content:flex-end; }
+  .bar {
+    width:70%; max-width:52px; background:linear-gradient(#6db3ff,#1e6fd9);
+    border-radius:6px 6px 0 0; transition:height 1s ease; border:1px solid #9fd0ff;
+    display:flex; align-items:flex-start; justify-content:center; color:#041a33; font-weight:bold; font-size:.8em; padding-top:3px;
+  }
+  .bar-lbl { margin-top:6px; font-weight:bold; color:#ffd700; }
+
+  /* Phone */
+  .phone-friend { font-size:3.4em; animation:ring .6s infinite; display:inline-block; }
+  @keyframes ring { 0%,100%{transform:rotate(0);} 25%{transform:rotate(-12deg);} 75%{transform:rotate(12deg);} }
+  .bubble {
+    background:rgba(255,255,255,.1); border-left:4px solid #ffd700; border-radius:10px;
+    padding:14px; text-align:left; line-height:1.6; margin-top:12px;
+  }
+  .phone-timer-bar { height:8px; background:#222; border-radius:4px; overflow:hidden; margin:12px 0; }
+  .phone-timer-bar div { height:100%; background:linear-gradient(90deg,#2ecc71,#f1c40f); width:100%; transition:width 1s linear; }
+
+  .rules { text-align:left; line-height:2; background:rgba(0,0,0,.25); padding:14px 18px; border-radius:12px; margin:14px 0; }
+  .big-emoji { font-size:4em; margin-bottom:8px; }
+  .confetti { position:fixed; top:-20px; font-size:1.3em; z-index:200; animation:fall linear forwards; pointer-events:none; }
+  @keyframes fall { to { transform:translateY(110vh) rotate(720deg); } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>💰 WHO WANTS TO BE A MILLIONAIRE 💰</h1>
+    <p>Edisi Kebutuhan Dasar Manusia • SMK Keperawatan Kelas X</p>
+  </header>
+
+  <div class="game-grid">
+    <main>
+      <!-- Lifelines -->
+      <div class="topbar">
+        <div class="lifelines">
+          <div class="life" id="life50" title="50:50" onclick="useFifty()">50:50</div>
+          <div class="life" id="lifePhone" title="Call a Friend" onclick="usePhone()">📞</div>
+          <div class="life" id="lifeAud" title="Ask the Audience" onclick="useAudience()">👥</div>
+        </div>
+        <button class="walk-btn" id="walkBtn" onclick="askWalk()">🏳️ BERHENTI & BAWA UANG</button>
+      </div>
+
+      <!-- Timer -->
+      <div class="timer-area">
+        <span class="qlevel" id="qLevel">LEVEL MUDAH</span>
+        <div class="timer-circle">
+          <svg width="66" height="66">
+            <circle cx="33" cy="33" r="28" fill="none" stroke="#123" stroke-width="6"/>
+            <circle id="ring" cx="33" cy="33" r="28" fill="none" stroke="#3a7bd5" stroke-width="6"
+              stroke-dasharray="175.9" stroke-dashoffset="0" stroke-linecap="round"/>
+          </svg>
+          <div class="num" id="timerNum">30</div>
+        </div>
+        <span class="qlevel" id="qFor">Soal 1 • Rp 100.000</span>
+      </div>
+
+      <!-- Question -->
+      <div class="hexq" id="qText">Tekan mulai untuk bermain</div>
+      <div class="answers" id="answers"></div>
+      <div class="lock-area" id="lockArea"></div>
+    </main>
+
+    <!-- Ladder -->
+    <aside class="ladder">
+      <h3>🏆 TANGGA HADIAH</h3>
+      <div id="ladderList"></div>
+    </aside>
+  </div>
+</div>
+
+<!-- START MODAL -->
+<div class="modal" id="startModal">
+  <div class="mbox">
+    <div class="big-emoji">💰</div>
+    <h2>Siap Jadi Jutawan?</h2>
+    <p>Jawab <b>20 soal Kebutuhan Dasar Manusia</b> dengan benar semua untuk memenangkan <b>Rp 1 MILIAR!</b></p>
+    <div class="rules">
+      📈 Soal makin tinggi = makin sulit & hadiah makin besar<br>
+      ⏱️ Waktu per level: Mudah 30s • Sedang 45s • Sulit 60s • Expert 90s<br>
+      ⭐ Level 5, 10, 15 adalah <b>LEVEL AMAN</b><br>
+      ❌ Jawaban salah → turun ke level aman terdekat<br>
+      🏳️ Bisa berhenti kapan saja & membawa uang<br><br>
+      <b>BANTUAN (masing-masing 1×):</b><br>
+      🎯 <b>50:50</b> — menghapus 2 jawaban salah<br>
+      📞 <b>Call a Friend</b> — menelepon sahabat (20 detik)<br>
+      👥 <b>Ask the Audience</b> — voting penonton
+    </div>
+    <button class="btn-gold" onclick="startGame()">🎮 MULAI PERMAINAN</button>
+  </div>
+</div>
+
+<!-- PHONE MODAL -->
+<div class="modal hidden" id="phoneModal">
+  <div class="mbox">
+    <div class="phone-friend">📞</div>
+    <h2 id="phoneTitle">Menghubungi sahabat...</h2>
+    <div class="phone-timer-bar"><div id="phoneBar"></div></div>
+    <div class="bubble hidden" id="phoneBubble"></div>
+    <button class="btn-gold hidden" id="phoneClose" onclick="closePhone()">👍 Terima kasih!</button>
+  </div>
+</div>
+
+<!-- AUDIENCE MODAL -->
+<div class="modal hidden" id="audModal">
+  <div class="mbox">
+    <h2>👥 Hasil Voting Penonton</h2>
+    <div class="chart" id="audChart"></div>
+    <button class="btn-gold" onclick="closeAudience()">OK, Mengerti!</button>
+  </div>
+</div>
+
+<!-- WALK CONFIRM -->
+<div class="modal hidden" id="walkModal">
+  <div class="mbox">
+    <div class="big-emoji">🏳️</div>
+    <h2>Berhenti di sini?</h2>
+    <p id="walkText"></p>
+    <button class="btn-gold" id="walkYes">✅ Ya, saya berhenti</button>
+    <button class="btn-grey" onclick="document.getElementById('walkModal').classList.add('hidden')">Lanjut bermain</button>
+  </div>
+</div>
+
+<!-- END MODAL -->
+<div class="modal hidden" id="endModal">
+  <div class="mbox">
+    <div class="big-emoji" id="endEmoji">🏆</div>
+    <h2 id="endTitle"></h2>
+    <p id="endMsg"></p>
+    <button class="btn-gold" onclick="location.reload()">🔄 Main Lagi</button>
+  </div>
+</div>
+
+<script>
+// ================= DATA =================
+const PRIZES = [
+  {v:100000,    l:"Rp 100 Ribu"},{v:200000,   l:"Rp 200 Ribu"},{v:300000,   l:"Rp 300 Ribu"},
+  {v:500000,    l:"Rp 500 Ribu"},{v:1000000,  l:"Rp 1 Juta", safe:true},
+  {v:2000000,   l:"Rp 2 Juta"},  {v:5000000,  l:"Rp 5 Juta"}, {v:10000000, l:"Rp 10 Juta"},
+  {v:20000000,  l:"Rp 20 Juta"}, {v:50000000, l:"Rp 50 Juta", safe:true},
+  {v:75000000,  l:"Rp 75 Juta"}, {v:100000000,l:"Rp 100 Juta"},{v:150000000,l:"Rp 150 Juta"},
+  {v:200000000, l:"Rp 200 Juta"},{v:250000000,l:"Rp 250 Juta", safe:true},
+  {v:400000000, l:"Rp 400 Juta"},{v:600000000,l:"Rp 600 Juta"},{v:800000000,l:"Rp 800 Juta"},
+  {v:900000000, l:"Rp 900 Juta"},{v:1000000000,l:"Rp 1 MILIAR", safe:true}
+];
+const TIMES = [30,45,60,90];
+const LVLNAME = ["MUDAH 😊","SEDANG 🤔","SULIT 😰","EXPERT 🔥"];
+const FRIENDS = ["Suster Rina","Perawat Budi","Kak Dina (kakak kelas)","Pak Guru Hendra"];
+
+const QUESTIONS = [
+ {d:1,q:"Kebutuhan dasar manusia adalah...",
+  o:["Segala sesuatu yang dibutuhkan manusia untuk mempertahankan hidup","Keinginan mewah yang sulit dicapai","Kebutuhan yang hanya penting bagi orang dewasa","Hal-hal yang dapat ditunda tanpa dampak apapun"],a:0,
+  h:"Kebutuhan dasar itu sesuatu yang WAJIB dipenuhi agar manusia bisa bertahan hidup."},
+ {d:1,q:"Menurut Abraham Maslow, kebutuhan paling dasar yang harus dipenuhi pertama kali adalah...",
+  o:["Kebutuhan rasa aman","Kebutuhan harga diri","Kebutuhan fisiologis","Kebutuhan aktualisasi diri"],a:2,
+  h:"Ingat piramida Maslow, paling bawah itu fisiologis: makan, minum, oksigen."},
+ {d:1,q:"Tokoh yang mengemukakan teori hierarki kebutuhan dasar manusia adalah...",
+  o:["Sigmund Freud","Abraham Maslow","Florence Nightingale","Virginia Henderson"],a:1,
+  h:"Namanya mirip dengan nama teorinya: Hierarki Maslow."},
+ {d:1,q:"Pasien mengeluh sesak napas. Hal ini menunjukkan gangguan kebutuhan...",
+  o:["Oksigen","Cairan","Nutrisi","Istirahat"],a:0,
+  h:"Sesak napas pasti berhubungan dengan jalan napas dan oksigen."},
+ {d:1,q:"Berikut ini yang termasuk kebutuhan fisiologis adalah...",
+  o:["Persahabatan dan cinta kasih","Penghargaan dan prestasi","Rasa aman dari bahaya","Makan, minum, dan tidur"],a:3,
+  h:"Fisiologis itu kebutuhan fisik tubuh: makan, minum, tidur."},
+ {d:2,q:"Urutan hierarki kebutuhan Maslow dari TERENDAH ke TERTINGGI adalah...",
+  o:["Fisiologis – rasa aman – kasih sayang – harga diri – aktualisasi diri","Rasa aman – fisiologis – kasih sayang – harga diri – aktualisasi diri","Fisiologis – kasih sayang – rasa aman – harga diri – aktualisasi diri","Aktualisasi diri – harga diri – kasih sayang – rasa aman – fisiologis"],a:0,
+  h:"Mulai dari fisiologis di dasar piramida, naik sampai aktualisasi diri di puncak."},
+ {d:2,q:"Pasien baru merasa cemas dan takut dengan lingkungan rumah sakit yang asing. Kebutuhan yang terganggu adalah...",
+  o:["Kebutuhan fisiologis","Kebutuhan rasa aman dan nyaman","Kebutuhan aktualisasi diri","Kebutuhan harga diri"],a:1,
+  h:"Cemas karena lingkungan asing = rasa tidak aman."},
+ {d:2,q:"Pasien merasa kesepian dan ingin keluarganya datang menjenguk. Kebutuhan menurut Maslow yang perlu diperhatikan adalah...",
+  o:["Kebutuhan kasih sayang / rasa memiliki","Kebutuhan fisiologis","Kebutuhan aktualisasi diri","Kebutuhan harga diri"],a:0,
+  h:"Kesepian dan ingin ditemani keluarga = kebutuhan kasih sayang."},
+ {d:2,q:"Suhu tubuh normal manusia adalah...",
+  o:["32 – 34°C","38 – 40°C","36,5 – 37,5°C","40 – 42°C"],a:2,
+  h:"Suhu normal itu sekitar 37 derajat Celsius."},
+ {d:2,q:"Rata-rata kebutuhan cairan orang dewasa per hari adalah...",
+  o:["Sekitar 500 ml","Sekitar 2 liter (±8 gelas)","Sekitar 5 liter","Sekitar 10 liter"],a:1,
+  h:"Ingat anjuran minum 8 gelas sehari, sekitar 2 liter."},
+ {d:3,q:"Pasien tampak senang karena perawat mendengarkan keluhannya dan menghargai pendapatnya. Kebutuhan yang terpenuhi adalah...",
+  o:["Kebutuhan fisiologis","Kebutuhan aktualisasi diri","Kebutuhan rasa aman","Kebutuhan harga diri"],a:3,
+  h:"Dihargai, dihormati, diakui = kebutuhan harga diri (esteem)."},
+ {d:3,q:"Pasien yang mampu mengembangkan seluruh potensi dan kreativitasnya secara maksimal telah memenuhi kebutuhan...",
+  o:["Aktualisasi diri","Rasa aman","Fisiologis","Kasih sayang"],a:0,
+  h:"Puncak piramida Maslow adalah pengembangan potensi diri sepenuhnya."},
+ {d:3,q:"Bibir dan ujung jari pasien tampak kebiruan karena kekurangan oksigen. Istilah keperawatan untuk kondisi ini adalah...",
+  o:["Ikterus","Sianosis","Anemia","Dispnea"],a:1,
+  h:"Kebiruan karena kurang oksigen = sianosis. Dispnea itu sesak napas, ikterus itu kuning."},
+ {d:3,q:"Pasien mengeluh susah buang air besar, feses keras, dan BAB hanya 2 kali seminggu. Kondisi ini disebut...",
+  o:["Diare","Inkontinensia","Konstipasi","Retensi urine"],a:2,
+  h:"BAB keras dan jarang = konstipasi alias sembelit."},
+ {d:3,q:"Lama tidur malam yang ideal untuk orang dewasa rata-rata adalah...",
+  o:["2 – 3 jam","7 – 8 jam","12 – 14 jam","15 – 16 jam"],a:1,
+  h:"Orang dewasa butuh sekitar 7-8 jam tidur setiap malam."},
+ {d:4,q:"Pasien muntah-muntah hebat, sangat haus, turgor kulit menurun, dan urine sedikit. Masalah utama pada kebutuhan cairannya adalah...",
+  o:["Kelebihan cairan (hipervolemia)","Kekurangan cairan (dehidrasi)","Kelebihan elektrolit natrium","Keracunan air"],a:1,
+  h:"Haus + turgor turun + urine sedikit = tanda tubuh kehilangan cairan."},
+ {d:4,q:"Pasien datang dengan sumbatan jalan napas. Tindakan prioritas perawat sesuai prinsip kegawatdaruratan (ABC) adalah...",
+  o:["Memberikan pendidikan kesehatan","Membantu kebersihan diri pasien","Memenuhi kebutuhan nutrisi segera","Membebaskan jalan napas dan memenuhi kebutuhan oksigen"],a:3,
+  h:"ABC dimulai dari Airway: bebaskan jalan napas terlebih dahulu."},
+ {d:4,q:"Pasien tirah baring lama dan jarang diubah posisinya berisiko mengalami luka pada kulit yang disebut...",
+  o:["Dekubitus (ulkus tekan)","Dermatitis kontak","Skabies","Psoriasis"],a:0,
+  h:"Luka akibat tekanan lama pada kulit disebut dekubitus."},
+ {d:4,q:"Perawat memberikan asuhan keperawatan secara holistik. Makna 'holistik' adalah...",
+  o:["Hanya fokus pada keluhan fisik","Hanya melaksanakan instruksi dokter","Memenuhi kebutuhan pasien secara menyeluruh: bio-psiko-sosio-spiritual","Fokus pada pemberian obat saja"],a:2,
+  h:"Holistik = menyeluruh: fisik, psikologis, sosial, dan spiritual."},
+ {d:4,q:"Pasien mengalami sesak napas, cemas, tidak mampu makan sendiri, dan merasa tidak dihargai. Menurut Maslow, prioritas utama yang harus ditangani perawat adalah...",
+  o:["Rasa cemas (kebutuhan rasa aman)","Kebutuhan makan (nutrisi)","Kebutuhan dihargai (harga diri)","Kebutuhan oksigen (sesak napas)"],a:3,
+  h:"Prioritas selalu kebutuhan paling dasar: fisiologis. Sesak napas = oksigen, paling mendesak!"}
+];
+
+// ================= STATE =================
+let cur=0, timerId=null, timeLeft=30, totalTime=30;
+let sel=-1, locked=false, hidden50=[];
+let life = {fifty:true, phone:true, aud:true};
+let AC = null;
+
+// ================= SOUND =================
+function ac(){ if(!AC) AC=new (window.AudioContext||window.webkitAudioContext)(); return AC; }
+function tone(f,d,type='sine',v=0.12,when=0){
+  try{ const c=ac(), o=c.createOscillator(), g=c.createGain();
+  o.type=type; o.frequency.value=f; g.gain.value=v;
+  o.connect(g); g.connect(c.destination);
+  o.start(c.currentTime+when); g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+when+d);
+  o.stop(c.currentTime+when+d);}catch(e){}
+}
+const sndSel=()=>tone(700,.1,'triangle');
+const sndTick=()=>tone(1100,.05,'square',.06);
+const sndCorrect=()=>{tone(523,.15);tone(659,.15,'sine',.12,.15);tone(784,.3,'sine',.12,.3);};
+const sndWrong=()=>{tone(300,.3,'sawtooth',.15);tone(200,.5,'sawtooth',.15,.25);};
+const sndLife=()=>{tone(880,.12,'triangle');tone(1320,.2,'triangle',.1,.12);};
+
+// ================= UTIL =================
+const $=id=>document.getElementById(id);
+const fmt=n=>'Rp '+n.toLocaleString('id-ID');
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+// ================= INIT =================
+function buildLadder(){
+  const list=$('ladderList'); list.innerHTML='';
+  for(let i=PRIZES.length-1;i>=0;i--){
+    const d=document.createElement('div');
+    d.className='rung'+(PRIZES[i].safe?' safe':'');
+    d.id='rung'+i;
+    d.innerHTML=`<span>${i+1}</span><span class="amt">${PRIZES[i].l}</span>`;
+    list.appendChild(d);
+  }
+}
+function prepQuestions(){
+  QUESTIONS.forEach(q=>{
+    const idx=[0,1,2,3]; shuffle(idx);
+    q.o=idx.map(i=>q.o[i]);
+    q.a=idx.indexOf(q.a);
+    q.hint=q.h;
+  });
+}
+function startGame(){
+  $('startModal').classList.add('hidden');
+  buildLadder(); prepQuestions(); loadQ(0);
+}
+
+// ================= QUESTION FLOW =================
+function loadQ(i){
+  cur=i; sel=-1; locked=false; hidden50=[];
+  const q=QUESTIONS[i];
+  totalTime=TIMES[q.d-1]; timeLeft=totalTime;
+  $('qLevel').textContent='LEVEL '+LVLNAME[q.d-1];
+  $('qFor').textContent=`Soal ${i+1} • ${PRIZES[i].l}`;
+  $('qText').textContent=q.q;
+  $('lockArea').innerHTML='';
+  $('walkBtn').disabled=false;
+
+  const box=$('answers'); box.innerHTML='';
+  q.o.forEach((txt,k)=>{
+    const b=document.createElement('button');
+    b.className='hex'; b.id='opt'+k;
+    b.innerHTML=`<b>${String.fromCharCode(65+k)}:</b> ${txt}`;
+    b.onclick=()=>selectOpt(k);
+    box.appendChild(b);
+  });
+
+  for(let r=0;r<20;r++){
+    const el=$('rung'+r);
+    el.classList.remove('current','past');
+    if(r<i) el.classList.add('past');
+    if(r===i) el.classList.add('current');
+  }
+  startTimer();
+}
+
+function selectOpt(k){
+  if(locked || hidden50.includes(k)) return;
+  sndSel();
+  document.querySelectorAll('.hex').forEach(h=>h.classList.remove('sel'));
+  $('opt'+k).classList.add('sel'); sel=k;
+  $('lockArea').innerHTML=`<button class="lock-btn" onclick="lockAnswer()">🔐 KUNCI JAWABAN — ${String.fromCharCode(65+k)}</button>`;
+}
+
+function startTimer(){
+  clearInterval(timerId);
+  updateRing();
+  timerId=setInterval(()=>{
+    timeLeft--;
+    updateRing();
+    if(timeLeft<=5 && timeLeft>0) sndTick();
+    if(timeLeft<=0){ clearInterval(timerId); timeUp(); }
+  },1000);
+}
+function updateRing(){
+  $('timerNum').textContent=timeLeft;
+  const pct=timeLeft/totalTime;
+  const ring=$('ring');
+  ring.style.strokeDashoffset=175.9*(1-pct);
+  ring.style.stroke = pct>.5?'#3a7bd5':pct>.25?'#f39c12':'#e74c3c';
+}
+
+function lockAnswer(){
+  if(sel<0||locked) return;
+  locked=true; clearInterval(timerId);
+  $('lockArea').innerHTML='<span class="msg">🤞 Semoga beruntung...</span>';
+  disableAll();
+  setTimeout(()=>reveal(sel),1400);
+}
+
+function reveal(picked){
+  const q=QUESTIONS[cur];
+  if(picked===q.a){
+    $('opt'+picked).classList.remove('sel');
+    $('opt'+picked).classList.add('right');
+    sndCorrect();
+    $('lockArea').innerHTML=`<span class="msg ok">✅ BENAR! Kamu meraih ${PRIZES[cur].l}</span>`;
+    setTimeout(()=>{
+      if(cur===19){ winGame(); }
+      else {
+        $('lockArea').innerHTML=`<button class="lock-btn" onclick="loadQ(${cur+1})">➡️ Lanjut ke Soal ${cur+2} (${PRIZES[cur+1].l})</button>`;
+      }
+    },1900);
+  } else {
+    if(picked>=0){ $('opt'+picked).classList.remove('sel'); $('opt'+picked).classList.add('wrongpick'); }
+    $('opt'+q.a).classList.add('right');
+    sndWrong();
+    setTimeout(()=>gameOver(picked),2200);
+  }
+}
+
+function timeUp(){
+  if(locked) return;
+  locked=true; disableAll();
+  $('lockArea').innerHTML='<span class="msg no">⏰ WAKTU HABIS!</span>';
+  sndWrong();
+  setTimeout(()=>gameOver(-1),2000);
+}
+
+function disableAll(){ document.querySelectorAll('.hex').forEach(h=>h.disabled=true); $('walkBtn').disabled=true; }
+
+function safeBelow(i){
+  let money=0;
+  for(let r=i-1;r>=0;r--){ if(PRIZES[r].safe){ money=PRIZES[r].v; break; } }
+  return money;
+}
+
+function gameOver(picked){
+  const won=safeBelow(cur);
+  $('endEmoji').textContent = picked===-1 ? '⏰':'💔';
+  $('endTitle').textContent='Permainan Berakhir';
+  $('endTitle').style.color='#e74c3c';
+  $('endMsg').innerHTML=`Jawaban ${picked===-1?'tidak diberikan karena waktu habis':'kamu salah'} di soal ke-${cur+1}.<br>
+    Jawaban yang benar: <b>${String.fromCharCode(65+QUESTIONS[cur].a)}. ${QUESTIONS[cur].o[QUESTIONS[cur].a]}</b><br><br>
+    ${won>0?`Kamu tetap membawa pulang dari level aman:<br><b style="color:#ffd700;font-size:1.4em">${fmt(won)}</b>`
+    :'Sayang sekali kamu pulang tanpa hadiah. Coba lagi ya!'}<br><br>
+    💡 <i>${QUESTIONS[cur].h}</i>`;
+  $('endModal').classList.remove('hidden');
+}
+
+function winGame(){
+  confetti();
+  $('endEmoji').textContent='🏆';
+  $('endTitle').textContent='SEMPURNA! 20/20 BENAR!';
+  $('endTitle').style.color='#ffd700';
+  $('endMsg').innerHTML=`Kamu menjawab <b>SEMUA 20 SOAL dengan BENAR</b> dan memenangkan<br>
+    <b style="color:#ffd700;font-size:1.8em">Rp 1 MILIAR!</b><br><br>
+    Kamu benar-benar menguasai materi <b>Kebutuhan Dasar Manusia</b>. Calon perawat hebat! 🩺👏`;
+  $('endModal').classList.remove('hidden');
+}
+
+// ================= WALK AWAY =================
+function askWalk(){
+  if(locked) return;
+  const won = cur>0 ? PRIZES[cur-1].v : 0;
+  $('walkText').innerHTML=`Kamu akan berhenti di soal ke-${cur+1} dan membawa pulang<br><b style="color:#ffd700;font-size:1.4em">${fmt(won)}</b>. Yakin?`;
+  $('walkYes').onclick=()=>{
+    $('walkModal').classList.add('hidden');
+    clearInterval(timerId);
+    $('endEmoji').textContent='🏳️';
+    $('endTitle').textContent='Keputusan Bijak!';
+    $('endTitle').style.color='#3498db';
+    $('endMsg').innerHTML=`Kamu memilih berhenti dan membawa pulang<br>
+      <b style="color:#ffd700;font-size:1.6em">${fmt(won)}</b><br><br>
+      Terkadang berhenti adalah strategi. Coba lagi untuk meraih Rp 1 Miliar! 💪`;
+    $('endModal').classList.remove('hidden');
+  };
+  $('walkModal').classList.remove('hidden');
+}
+
+// ================= LIFELINES =================
+function visibleWrong(){
+  const q=QUESTIONS[cur];
+  return [0,1,2,3].filter(i=>i!==q.a && !hidden50.includes(i));
+}
+
+function useFifty(){
+  if(!life.fifty||locked) return;
+  life.fifty=false; $('life50').classList.add('used'); sndLife();
+  const wrongs=shuffle(visibleWrong());
+  hidden50.push(wrongs[0],wrongs[1]);
+  $('opt'+wrongs[0]).classList.add('hidden50');
+  $('opt'+wrongs[1]).classList.add('hidden50');
+  if(hidden50.includes(sel)){ sel=-1; $('lockArea').innerHTML=''; }
+}
+
+function usePhone(){
+  if(!life.phone||locked) return;
+  life.phone=false; $('lifePhone').classList.add('used'); sndLife();
+  const friend=FRIENDS[Math.floor(Math.random()*FRIENDS.length)];
+  $('phoneModal').classList.remove('hidden');
+  $('phoneTitle').textContent=`📞 Menghubungi ${friend}...`;
+  $('phoneBubble').classList.add('hidden');
+  $('phoneClose').classList.add('hidden');
+  const bar=$('phoneBar'); bar.style.width='100%';
+
+  let t=20;
+  const iv=setInterval(()=>{
+    t--; bar.style.width=(t/20*100)+'%';
+    if(t<=16 && t>0 && $('phoneBubble').classList.contains('hidden')){
+      // ringing phase done at ~16s? reveal earlier: at 17s show answer
+    }
+    if(t===17){
+      clearInterval(iv);
+      giveFriendAnswer(friend);
+      // keep a small countdown visual: restart for remaining seconds
+      let t2=17;
+      const iv2=setInterval(()=>{ t2--; bar.style.width=(t2/20*100)+'%';
+        if(t2<=0){ clearInterval(iv2); if(!$('phoneModal').classList.contains('hidden')) closePhone(); }
+      },1000);
+      $('phoneModal').dataset.iv2=iv2;
+    }
+  },1000);
+  $('phoneModal').dataset.iv=iv;
+}
+
+function giveFriendAnswer(friend){
+  const q=QUESTIONS[cur];
+  const acc=[0.95,0.8,0.65,0.5][q.d-1];
+  let pick;
+  if(Math.random()<acc){ pick=q.a; }
+  else { const w=visibleWrong(); pick=w[Math.floor(Math.random()*w.length)]; }
+  const sure=Math.round(acc*100)-5+Math.floor(Math.random()*10);
+  const b=$('phoneBubble');
+  b.classList.remove('hidden');
+  $('phoneTitle').textContent=`📞 Terhubung dengan ${friend}`;
+  b.innerHTML=`<b>${friend}:</b> "Halo! Wah soal nomor ${cur+1} ya... hmm, kalau tidak salah jawabannya
+    <b style="color:#ffd700">huruf ${String.fromCharCode(65+pick)}</b>. ${q.h}
+    Aku sekitar ${sure}% yakin ya. Keputusan tetap di tanganmu, semangat!" 💪`;
+  $('phoneClose').classList.remove('hidden');
+  tone(1046,.15,'sine',.1); tone(1318,.25,'sine',.1,.15);
+}
+
+function closePhone(){
+  clearInterval(Number($('phoneModal').dataset.iv));
+  clearInterval(Number($('phoneModal').dataset.iv2));
+  $('phoneModal').classList.add('hidden');
+}
+
+function useAudience(){
+  if(!life.aud||locked) return;
+  life.aud=false; $('lifeAud').classList.add('used'); sndLife();
+  const q=QUESTIONS[cur];
+  const base=[68,55,44,33][q.d-1] + Math.floor(Math.random()*13)-6;
+  let votes=[0,0,0,0];
+  votes[q.a]=base;
+  let rest=100-base;
+  const others=[0,1,2,3].filter(i=>i!==q.a && !hidden50.includes(i));
+  others.forEach(()=>{});
+  // distribute rest
+  let weights=others.map(()=>Math.random());
+  const sum=weights.reduce((a,b)=>a+b,0)||1;
+  others.forEach((oi,k)=>{
+    const val = k===others.length-1 ? rest : Math.round(rest*weights[k]/sum);
+    votes[oi]=val;
+    rest-=val;
+  });
+  // fix rounding: ensure sum 100
+  const total=votes.reduce((a,b)=>a+b,0);
+  votes[q.a]+=(100-total);
+
+  const chart=$('audChart'); chart.innerHTML='';
+  [0,1,2,3].forEach(i=>{
+    const w=document.createElement('div'); w.className='bar-wrap';
+    const pct=hidden50.includes(i)?0:votes[i];
+    w.innerHTML=`<div class="bar" style="height:2%" data-h="${Math.max(pct,2)}">${pct}%</div>
+      <div class="bar-lbl">${String.fromCharCode(65+i)}${hidden50.includes(i)?' ✖':''}</div>`;
+    chart.appendChild(w);
+  });
+  $('audModal').classList.remove('hidden');
+  setTimeout(()=>{
+    chart.querySelectorAll('.bar').forEach(b=>b.style.height=b.dataset.h+'%');
+  },100);
+}
+function closeAudience(){ $('audModal').classList.add('hidden'); }
+
+// ================= CONFETTI =================
+function confetti(){
+  const chars=['🎉','🎊','💰','⭐','🏆','✨'];
+  for(let i=0;i<90;i++){
+    const s=document.createElement('span');
+    s.className='confetti';
+    s.textContent=chars[Math.floor(Math.random()*chars.length)];
+    s.style.left=Math.random()*100+'vw';
+    s.style.animationDuration=(2.5+Math.random()*3)+'s';
+    s.style.animationDelay=(Math.random()*2)+'s';
+    document.body.appendChild(s);
+    setTimeout(()=>s.remove(),7000);
+  }
+}
+</script>
+</body>
+</html>
