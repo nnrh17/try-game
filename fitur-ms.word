@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🧠 Memory Recall - Fitur Microsoft Word | Informatika Kelas X</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family:'Segoe UI', Tahoma, sans-serif;
+    background: radial-gradient(ellipse at 50% 20%, #2b579a 0%, #14294d 55%, #070f21 100%);
+    min-height:100vh; color:#fff; padding:14px; overflow-x:hidden;
+  }
+  /* latar hidup */
+  .bg-float { position:fixed; font-size:2em; opacity:.08; animation:floatUp linear infinite; pointer-events:none; z-index:0; }
+  @keyframes floatUp { from { transform:translateY(105vh) rotate(0); } to { transform:translateY(-10vh) rotate(360deg); } }
+
+  .wrap { max-width:900px; margin:0 auto; position:relative; z-index:1; }
+  header { text-align:center; margin-bottom:14px; }
+  header h1 {
+    font-size:1.9em;
+    background:linear-gradient(90deg,#4fc3f7,#b3e5fc,#ffd700,#b3e5fc,#4fc3f7);
+    background-size:250%; -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+    animation:shine 5s linear infinite;
+  }
+  @keyframes shine { to { background-position:250%; } }
+  header p { opacity:.85; font-size:.92em; margin-top:4px; }
+
+  /* ===== HUD ===== */
+  .hud { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-bottom:14px; }
+  .stat {
+    background:rgba(255,255,255,.09); border:1px solid rgba(120,180,255,.35);
+    border-radius:12px; padding:8px 16px; text-align:center; min-width:90px;
+    backdrop-filter:blur(4px);
+  }
+  .stat small { display:block; opacity:.75; font-size:.72em; }
+  .stat b { font-size:1.15em; }
+  .stat.score b { color:#ffd700; }
+  .stat.combo b { color:#7bed9f; }
+
+  /* ===== BOARD ===== */
+  .board { display:grid; gap:11px; justify-content:center; }
+  .board.g8  { grid-template-columns:repeat(4, minmax(72px,135px)); }
+  .board.g12 { grid-template-columns:repeat(4, minmax(72px,135px)); }
+  .board.g20 { grid-template-columns:repeat(5, minmax(64px,120px)); }
+  @media(max-width:560px){
+    .board.g8, .board.g12 { grid-template-columns:repeat(4, minmax(62px,1fr)); }
+    .board.g20 { grid-template-columns:repeat(4, minmax(62px,1fr)); }
+  }
+
+  .card { aspect-ratio:3/4; perspective:900px; cursor:pointer; }
+  .card-inner {
+    position:relative; width:100%; height:100%;
+    transform-style:preserve-3d; transition:transform .5s;
+  }
+  .card.flipped .card-inner { transform:rotateY(180deg); }
+  .face {
+    position:absolute; inset:0; backface-visibility:hidden;
+    border-radius:12px; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; padding:6px; text-align:center;
+  }
+  .face.back {
+    background:linear-gradient(150deg,#2b579a,#1a3764);
+    border:2px solid #4f7cc7;
+    box-shadow:0 4px 14px rgba(0,20,60,.5), inset 0 0 22px rgba(90,140,220,.25);
+  }
+  .wordlogo {
+    width:52%; aspect-ratio:1; background:linear-gradient(150deg,#41a5ee,#185abd);
+    border-radius:20%; display:flex; align-items:center; justify-content:center;
+    font-size:1.9em; font-weight:900; color:#fff;
+    box-shadow:0 4px 12px rgba(0,0,0,.4);
+  }
+  .back small { margin-top:8px; opacity:.7; font-size:.62em; letter-spacing:1px; }
+  .face.front {
+    transform:rotateY(180deg);
+    background:linear-gradient(160deg,#fdfdfd,#dbe7f5);
+    border:2px solid #8fb4e0; color:#17324d;
+    box-shadow:0 4px 14px rgba(0,20,60,.5);
+  }
+  .card.matched .face.front {
+    background:linear-gradient(160deg,#d7ffe4,#a8f0c0);
+    border-color:#2ecc71; animation:pop .45s;
+    box-shadow:0 0 20px rgba(46,204,113,.7);
+  }
+  @keyframes pop { 40% { transform:rotateY(180deg) scale(1.12); } }
+  .card.shake { animation:shakeX .4s; }
+  @keyframes shakeX { 25%{transform:translateX(-7px);} 50%{transform:translateX(7px);} 75%{transform:translateX(-4px);} }
+  .card.hint .face.front { border-color:#ffd700; box-shadow:0 0 18px #ffd700; }
+
+  /* ikon fitur */
+  .fi { font-size:2em; line-height:1; }
+  .f-bold { font-weight:900; }
+  .f-italic { font-style:italic; font-family:Georgia, serif; }
+  .f-under { text-decoration:underline; text-underline-offset:4px; }
+  .f-color { position:relative; padding-bottom:8px; }
+  .colorbar { position:absolute; left:8%; right:8%; bottom:0; height:7px; border-radius:3px;
+    background:linear-gradient(90deg,#e74c3c,#f39c12,#2ecc71,#3498db); }
+  .f-hl { background:#ffe23f; padding:2px 8px; border-radius:4px; font-weight:bold; }
+  .bars { display:flex; flex-direction:column; gap:5px; width:52px; }
+  .bars span { height:6px; background:#2b579a; border-radius:3px; margin:0 auto; }
+  .bars-center span:nth-child(1), .bars-center span:nth-child(3){ width:100%; }
+  .bars-center span:nth-child(2), .bars-center span:nth-child(4){ width:55%; }
+  .blines { display:flex; flex-direction:column; gap:6px; width:56px; }
+  .blines div { display:flex; align-items:center; gap:6px; }
+  .blines i { width:8px; height:8px; background:#2b579a; border-radius:50%; flex-shrink:0; }
+  .blines span { flex:1; height:5px; background:#2b579a; border-radius:3px; }
+  .blines div:nth-child(2) span { width:70%; flex:none; }
+  .f-name { font-weight:900; font-size:1.05em; color:#185abd; margin-bottom:4px; }
+  .f-desc { font-size:.72em; line-height:1.35; color:#33475b; }
+  .f-key { margin-top:5px; font-size:.6em; font-weight:bold; background:#185abd; color:#fff;
+    padding:2px 8px; border-radius:9px; }
+  .f-key.icon-only { background:#e67e22; }
+
+  /* popup skor */
+  .pts {
+    position:fixed; font-weight:900; color:#ffd700; font-size:1.3em; z-index:60;
+    text-shadow:0 2px 8px rgba(0,0,0,.6); animation:rise 1s forwards; pointer-events:none;
+  }
+  @keyframes rise { to { transform:translateY(-70px); opacity:0; } }
+
+  /* ===== MODAL ===== */
+  .modal {
+    position:fixed; inset:0; background:rgba(3,8,25,.92); z-index:100;
+    display:flex; align-items:center; justify-content:center; padding:15px;
+  }
+  .hidden { display:none !important; }
+  .mbox {
+    background:linear-gradient(155deg,#12345e,#0a1f3d);
+    border:2px solid #3f73c4; border-radius:20px; padding:30px 26px;
+    max-width:560px; width:100%; text-align:center; animation:popIn .45s;
+    box-shadow:0 25px 80px rgba(0,30,100,.6); max-height:92vh; overflow-y:auto;
+  }
+  @keyframes popIn { from { transform:scale(.4); opacity:0; } }
+  .mbox h2 { color:#ffd700; margin-bottom:10px; }
+  .mbox p { line-height:1.6; margin-bottom:12px; }
+  .big-emoji { font-size:4em; margin-bottom:6px; }
+
+  .btn {
+    border:none; border-radius:28px; padding:12px 30px; font-size:1.02em;
+    font-weight:bold; cursor:pointer; transition:.25s; margin:5px;
+  }
+  .btn:hover { transform:scale(1.06); }
+  .btn-gold { background:linear-gradient(#ffd700,#c78f00); color:#222; box-shadow:0 4px 16px rgba(255,215,0,.4); }
+  .btn-blue { background:linear-gradient(#41a5ee,#185abd); color:#fff; }
+  .btn-red  { background:linear-gradient(#ff7675,#c0392b); color:#fff; }
+  .btn-grey { background:#3d5570; color:#fff; }
+
+  .diff-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:10px; margin:16px 0; }
+  .diff-card {
+    background:rgba(255,255,255,.08); border:2px solid rgba(120,180,255,.4);
+    border-radius:14px; padding:16px 8px; cursor:pointer; transition:.25s;
+  }
+  .diff-card:hover { background:rgba(255,215,0,.18); border-color:#ffd700; transform:translateY(-4px); }
+  .diff-card .d-emoji { font-size:2em; }
+  .diff-card b { display:block; margin:6px 0 3px; color:#ffd700; }
+  .diff-card small { opacity:.8; font-size:.78em; line-height:1.4; display:block; }
+
+  .rules { text-align:left; line-height:1.9; background:rgba(0,0,0,.28); padding:14px 18px; border-radius:12px; font-size:.92em; }
+
+  /* preview overlay */
+  .preview {
+    position:fixed; top:12px; left:50%; transform:translateX(-50%); z-index:50;
+    background:rgba(10,25,60,.9); border:2px solid #ffd700; border-radius:30px;
+    padding:10px 26px; text-align:center; animation:popIn .4s;
+  }
+  .preview b { color:#ffd700; font-size:1.5em; }
+
+  /* bintang */
+  .stars { font-size:2.6em; margin:6px 0; letter-spacing:6px; }
+  .stars span { display:inline-block; animation:starPop .5s backwards; }
+  .stars span:nth-child(2){ animation-delay:.25s; } .stars span:nth-child(3){ animation-delay:.5s; }
+  @keyframes starPop { from { transform:scale(0) rotate(-180deg); } }
+
+  .review { text-align:left; margin-top:14px; }
+  .review h3 { color:#4fc3f7; margin-bottom:8px; text-align:center; }
+  .rv-item { display:flex; gap:12px; align-items:center; background:rgba(255,255,255,.07);
+    border-radius:10px; padding:8px 12px; margin-bottom:6px; }
+  .rv-ico {
+    width:52px; height:52px; flex-shrink:0; background:#fdfdfd; border-radius:9px;
+    display:flex; align-items:center; justify-content:center; color:#17324d;
+  }
+  .rv-ico .fi { font-size:1.4em; }
+  .rv-item b { color:#ffd700; font-size:.95em; }
+  .rv-item small { display:block; opacity:.85; font-size:.8em; }
+
+  .confetti { position:fixed; top:-30px; font-size:1.4em; z-index:200; animation:fallC linear forwards; pointer-events:none; }
+  @keyframes fallC { to { transform:translateY(112vh) rotate(720deg); } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>🧠 MEMORY RECALL 🏆</h1>
+    <p>Fitur-Fitur Microsoft Word • Informatika Kelas X SMK</p>
+  </header>
+
+  <!-- HUD -->
+  <div class="hud hidden" id="hud">
+    <div class="stat"><small>⏱️ WAKTU</small><b id="hTime">00:00</b></div>
+    <div class="stat"><small>🎯 LANGKAH</small><b id="hMoves">0</b></div>
+    <div class="stat"><small>🃏 PASANGAN</small><b id="hPairs">0/4</b></div>
+    <div class="stat score"><small>⭐ SKOR</small><b id="hScore">0</b></div>
+    <div class="stat combo"><small>🔥 BERUNTUN</small><b id="hCombo">x0</b></div>
+  </div>
+
+  <div class="board" id="board"></div>
+</div>
+
+<!-- PREVIEW BANNER -->
+<div class="preview hidden" id="preview">
+  👀 Ingat posisi semua kartu!<br><b id="pvNum">8</b>
+</div>
+
+<!-- START MODAL -->
+<div class="modal" id="startModal">
+  <div class="mbox">
+    <div class="big-emoji">🧠</div>
+    <h2>Memory Recall: Fitur MS Word</h2>
+    <p>Jadilah <b>Juara Kelas</b> dengan mencocokkan kartu <b>ikon fitur</b> Microsoft Word dengan <b>kartu keterangannya</b>!</p>
+    <div class="rules">
+      👀 <b>Fase Mengingat:</b> semua kartu dibuka sebentar — hafalkan!<br>
+      🃏 Kartu lalu ditutup. Buka 2 kartu per langkah.<br>
+      ✅ Ikon + keterangan yang cocok = pasangan ditemukan (+100 poin & bonus beruntun!)<br>
+      ⭐ Semakin sedikit langkah & cepat selesai = bintang 3<br>
+      🏆 Temukan semua pasangan untuk naik podium juara!
+    </div>
+    <div class="diff-grid">
+      <div class="diff-card" onclick="startGame('easy')">
+        <div class="d-emoji">😊</div><b>MUDAH</b><small>4 pasangan<br>8 kartu • lihat 8 detik</small>
+      </div>
+      <div class="diff-card" onclick="startGame('med')">
+        <div class="d-emoji">🤔</div><b>SEDANG</b><small>6 pasangan<br>12 kartu • lihat 10 detik</small>
+      </div>
+      <div class="diff-card" onclick="startGame('hard')">
+        <div class="d-emoji">🔥</div><b>SULIT</b><small>10 pasangan<br>20 kartu • lihat 14 detik</small>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- WIN MODAL -->
+<div class="modal hidden" id="winModal">
+  <div class="mbox">
+    <div class="big-emoji" id="wEmoji">🏆</div>
+    <h2 id="wTitle">Juara Kelas!</h2>
+    <div class="stars" id="wStars"></div>
+    <p id="wStats"></p>
+    <button class="btn btn-blue" onclick="toggleReview()">📚 Ulas Materi</button>
+    <div class="review hidden" id="reviewBox"></div>
+    <hr style="margin:16px 0; opacity:.2;">
+    <button class="btn btn-gold" onclick="replay()">🔄 Main Lagi</button>
+    <button class="btn btn-grey" onclick="backToMenu()">🎚️ Ganti Level</button>
+  </div>
+</div>
+
+<script>
+// ================= DATA FITUR MICROSOFT WORD =================
+const FEATURES = [
+ {id:'bold', name:'Bold', key:'Ctrl+B', desc:'Menebalkan teks yang dipilih',
+  icon:'<div class="fi f-bold">B</div>'},
+ {id:'italic', name:'Italic', key:'Ctrl+I', desc:'Memiringkan teks yang dipilih',
+  icon:'<div class="fi f-italic">I</div>'},
+ {id:'underline', name:'Underline', key:'Ctrl+U', desc:'Menggarisbawahi teks yang dipilih',
+  icon:'<div class="fi f-under">U</div>'},
+ {id:'save', name:'Save', key:'Ctrl+S', desc:'Menyimpan dokumen ke penyimpanan',
+  icon:'<div class="fi">💾</div>'},
+ {id:'print', name:'Print', key:'Ctrl+P', desc:'Mencetak dokumen ke printer',
+  icon:'<div class="fi">🖨️</div>'},
+ {id:'color', name:'Font Color', key:'', desc:'Mengubah warna huruf pada teks',
+  icon:'<div class="fi f-color">A<div class="colorbar"></div></div>'},
+ {id:'center', name:'Center', key:'Ctrl+E', desc:'Membuat paragraf menjadi rata tengah',
+  icon:'<div class="fi"><div class="bars bars-center"><span></span><span></span><span></span><span></span></div></div>'},
+ {id:'bullet', name:'Bullets', key:'', desc:'Membuat daftar berpoin dengan simbol',
+  icon:'<div class="fi"><div class="blines"><div><i></i><span></span></div><div><i></i><span></span></div><div><i></i><span></span></div></div></div>'},
+ {id:'undo', name:'Undo', key:'Ctrl+Z', desc:'Membatalkan perintah terakhir',
+  icon:'<div class="fi">↶</div>'},
+ {id:'highlight', name:'Highlight', key:'', desc:'Menandai teks dengan warna stabilo',
+  icon:'<div class="fi f-hl">ab</div>'}
+];
+
+const DIFF = {
+  easy:{pairs:4, preview:8,  cls:'g8'},
+  med: {pairs:6, preview:10, cls:'g12'},
+  hard:{pairs:10, preview:14, cls:'g20'}
+};
+
+// ================= STATE =================
+let diff='easy', deck=[], first=null, second=null, lockBoard=false;
+let moves=0, matched=0, totalPairs=4, score=0, combo=0;
+let sec=0, timerId=null, previewId=null;
+let AC=null;
+
+// ================= SOUND =================
+function ac(){ if(!AC) AC=new (window.AudioContext||window.webkitAudioContext)(); return AC; }
+function tone(f,d,type='sine',v=.12,when=0){
+  try{ const c=ac(),o=c.createOscillator(),g=c.createGain();
+  o.type=type;o.frequency.value=f;g.gain.value=v;o.connect(g);g.connect(c.destination);
+  o.start(c.currentTime+when);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+when+d);
+  o.stop(c.currentTime+when+d);}catch(e){}
+}
+const sndFlip=()=>tone(500,.08,'triangle',.08);
+const sndMatch=()=>{tone(659,.12);tone(880,.2,'sine',.13,.12);};
+const sndBad=()=>tone(180,.25,'sawtooth',.12);
+const sndTick=()=>tone(1000,.05,'square',.05);
+const sndWin=()=>{[523,659,784,1046].forEach((f,i)=>tone(f,.25,'sine',.14,i*.16));};
+
+// ================= UTIL =================
+const $=id=>document.getElementById(id);
+function shuffle(a){ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+function fmtTime(s){ return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0'); }
+
+// latar hidup
+(function(){
+  const chars=['📄','✏️','💾','🖨️','📝','🔤'];
+  for(let i=0;i<10;i++){
+    const s=document.createElement('span');
+    s.className='bg-float'; s.textContent=chars[i%chars.length];
+    s.style.left=Math.random()*95+'vw';
+    s.style.animationDuration=(14+Math.random()*18)+'s';
+    s.style.animationDelay=(-Math.random()*20)+'s';
+    document.body.appendChild(s);
+  }
+})();
+
+// ================= GAME FLOW =================
+function startGame(d){
+  diff=d;
+  const cfg=DIFF[d];
+  totalPairs=cfg.pairs; matched=0; moves=0; score=0; combo=0; sec=0;
+  first=null; second=null; lockBoard=true;
+
+  $('startModal').classList.add('hidden');
+  $('winModal').classList.add('hidden');
+  $('hud').classList.remove('hidden');
+  updateHUD();
+
+  // bangun kartu: tiap fitur jadi 2 kartu (ikon & keterangan)
+  const feats=FEATURES.slice(0,totalPairs);
+  deck=[];
+  feats.forEach(f=>{
+    deck.push({fid:f.id, kind:'icon', f});
+    deck.push({fid:f.id, kind:'desc', f});
+  });
+  shuffle(deck);
+
+  const board=$('board');
+  board.className='board '+cfg.cls;
+  board.innerHTML='';
+  deck.forEach((c,i)=>{
+    const el=document.createElement('div');
+    el.className='card flipped'; el.dataset.idx=i;
+    const front = c.kind==='icon'
+      ? c.icon + (c.f.key?`<div class="f-key icon-only">${c.f.key}</div>`:'')
+      : `<div class="f-name">${c.f.name}</div><div class="f-desc">${c.f.desc}</div>` + (c.f.key?`<div class="f-key">${c.f.key}</div>`:'');
+    el.innerHTML=`<div class="card-inner">
+      <div class="face back"><div class="wordlogo">W</div><small>MS WORD</small></div>
+      <div class="face front">${front}</div>
+    </div>`;
+    el.onclick=()=>clickCard(el,i);
+    board.appendChild(el);
+  });
+
+  // fase mengingat
+  let t=cfg.preview;
+  $('preview').classList.remove('hidden');
+  $('pvNum').textContent=t;
+  clearInterval(previewId);
+  previewId=setInterval(()=>{
+    t--; $('pvNum').textContent=t; sndTick();
+    if(t<=0){ clearInterval(previewId); hidePreview(); }
+  },1000);
+}
+
+function hidePreview(){
+  $('preview').classList.add('hidden');
+  document.querySelectorAll('.card').forEach((c,i)=>{
+    setTimeout(()=>c.classList.remove('flipped'), i*60);
+  });
+  setTimeout(()=>{
+    lockBoard=false;
+    clearInterval(timerId);
+    timerId=setInterval(()=>{ sec++; $('hTime').textContent=fmtTime(sec); },1000);
+  }, deck.length*60+600);
+}
+
+function clickCard(el,idx){
+  if(lockBoard || el.classList.contains('flipped') || el.classList.contains('matched')) return;
+  sndFlip();
+  el.classList.add('flipped');
+  if(!first){ first={el,idx}; return; }
+  second={el,idx};
+  moves++; lockBoard=true;
+  checkMatch();
+}
+
+function checkMatch(){
+  const a=deck[first.idx], b=deck[second.idx];
+  const ok = a.fid===b.fid && a.kind!==b.kind;
+  if(ok){
+    combo++;
+    const pts=100+(combo-1)*25;
+    score+=pts; matched++;
+    sndMatch();
+    setTimeout(()=>{
+      first.el.classList.add('matched'); second.el.classList.add('matched');
+      floatPts(second.el,'+'+pts);
+      updateHUD();
+      first=null; second=null; lockBoard=false;
+      if(matched===totalPairs) win();
+    },350);
+  } else {
+    combo=0; sndBad();
+    setTimeout(()=>{
+      first.el.classList.add('shake'); second.el.classList.add('shake');
+      setTimeout(()=>{
+        first.el.classList.remove('flipped','shake');
+        second.el.classList.remove('flipped','shake');
+        first=null; second=null; lockBoard=false;
+      },420);
+    },550);
+  }
+  updateHUD();
+}
+
+function updateHUD(){
+  $('hMoves').textContent=moves;
+  $('hPairs').textContent=matched+'/'+totalPairs;
+  $('hScore').textContent=score;
+  $('hCombo').textContent='x'+combo;
+}
+
+function floatPts(el,txt){
+  const r=el.getBoundingClientRect();
+  const s=document.createElement('span');
+  s.className='pts'; s.textContent=txt;
+  s.style.left=(r.left+r.width/2-20)+'px';
+  s.style.top=(r.top)+'px';
+  document.body.appendChild(s);
+  setTimeout(()=>s.remove(),1000);
+}
+
+// ================= MENANG =================
+function win(){
+  clearInterval(timerId);
+  sndWin(); confetti();
+  const minMv=totalPairs;
+  let stars=1, emoji='🥉', title='Bagus, Terus Latihan!';
+  if(moves<=minMv*1.6){ stars=3; emoji='🏆'; title='JUARA KELAS!'; }
+  else if(moves<=minMv*2.5){ stars=2; emoji='🥈'; title='Luar Biasa!'; }
+
+  const bonus=Math.max(0,400-sec*2);
+  score+=bonus;
+
+  $('wEmoji').textContent=emoji;
+  $('wTitle').textContent=title;
+  $('wStars').innerHTML=Array.from({length:3},(_,i)=>
+    `<span>${i<stars?'⭐':'🌑'}</span>`).join('');
+  $('wStats').innerHTML=`⏱️ Waktu: <b>${fmtTime(sec)}</b> &nbsp;|&nbsp; 🎯 Langkah: <b>${moves}</b><br>
+    ⭐ Skor akhir: <b style="color:#ffd700;font-size:1.3em">${score}</b>
+    <small>(termasuk bonus waktu +${bonus})</small><br><br>
+    ${stars===3?'Ingatanmu sempurna! Kamu pantas jadi Juara Kelas! 👑':
+      'Ayo main lagi untuk meraih bintang 3 dan gelar Juara Kelas!'}
+    <br><br>Kamu telah mempelajari <b>${totalPairs} fitur Microsoft Word</b>.`;
+
+  // ulasan materi
+  const feats=FEATURES.slice(0,totalPairs);
+  $('reviewBox').innerHTML='<h3>📚 Rangkuman Fitur MS Word</h3>'+
+    feats.map(f=>`<div class="rv-item">
+      <div class="rv-ico">${f.icon}</div>
+      <div><b>${f.name}</b>${f.key?' <small style="color:#4fc3f7">('+f.key+')</small>':''}
+      <small>${f.desc}</small></div></div>`).join('');
+
+  $('winModal').classList.remove('hidden');
+}
+
+function replay(){ $('winModal').classList.add('hidden'); startGame(diff); }
+function backToMenu(){
+  $('winModal').classList.add('hidden');
+  $('hud').classList.add('hidden');
+  $('board').innerHTML='';
+  clearInterval(timerId);
+  $('startModal').classList.remove('hidden');
+}
+function toggleReview(){ $('reviewBox').classList.toggle('hidden'); }
+
+function confetti(){
+  const chars=['🎉','🏆','⭐','🎊','🥇','✨','📄'];
+  for(let i=0;i<80;i++){
+    const s=document.createElement('span');
+    s.className='confetti';
+    s.textContent=chars[Math.floor(Math.random()*chars.length)];
+    s.style.left=Math.random()*100+'vw';
+    s.style.animationDuration=(2.5+Math.random()*3)+'s';
+    s.style.animationDelay=(Math.random()*1.8)+'s';
+    document.body.appendChild(s);
+    setTimeout(()=>s.remove(),7000);
+  }
+}
+</script>
+</body>
+</html>
