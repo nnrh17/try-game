@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>💰 Millionaire - Informatika | SMK Kelas X (dengan Musik)</title>
+<title>💰 Millionaire Orkestra Cinematic | SMK Kelas X</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
   body {
@@ -39,15 +39,21 @@
   .life.used { filter:grayscale(1) brightness(.5); cursor:not-allowed; border-color:#555; position:relative; }
   .life.used::after { content:'✖'; position:absolute; font-size:2.4em; color:#e74c3c; }
 
-  .side-btns { display:flex; gap:8px; flex-wrap:wrap; }
+  .side-btns { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
   .walk-btn {
     background:linear-gradient(#c0392b,#7b241c); border:2px solid #ff8a75;
     color:#fff; padding:10px 16px; border-radius:25px; font-weight:bold; cursor:pointer; transition:.25s;
   }
   .music-btn {
     background:linear-gradient(#27ae60,#145a32); border:2px solid #7bed9f;
-    color:#fff; padding:10px 16px; border-radius:25px; font-weight:bold; cursor:pointer; transition:.25s;
+    color:#fff; padding:10px 14px; border-radius:25px; font-weight:bold; cursor:pointer; transition:.25s;
+    display:flex; align-items:center; gap:8px;
   }
+  .vol-wrap { display:flex; align-items:center; gap:6px; }
+  .vol-slider {
+    width:70px; accent-color:#ffd700;
+  }
+  .vol-label { font-size:.75em; opacity:.8; }
   .walk-btn:hover:not(:disabled), .music-btn:hover { transform:scale(1.05); }
   .walk-btn:disabled { opacity:.4; cursor:not-allowed; }
 
@@ -154,17 +160,20 @@
   .phone-timer-bar { height:8px; background:#222; border-radius:4px; overflow:hidden; margin:12px 0; }
   .phone-timer-bar div { height:100%; background:linear-gradient(90deg,#2ecc71,#f1c40f); width:100%; transition:width 1s linear; }
 
-  .rules { text-align:left; line-height:2; background:rgba(0,0,0,.25); padding:14px 18px; border-radius:12px; margin:14px 0; }
+  .rules { text-align:left; line-height:2; background:rgba(0,0,0,.25); padding:14px 18px; border-radius:12px; margin:14px 0; font-size:.92em; }
   .big-emoji { font-size:4em; margin-bottom:8px; }
   .confetti { position:fixed; top:-20px; font-size:1.3em; z-index:200; animation:fall linear forwards; pointer-events:none; }
   @keyframes fall { to { transform:translateY(110vh) rotate(720deg); } }
+
+  .audio-tag { display:inline-block; padding:3px 10px; border-radius:12px; background:rgba(255,215,0,.2); color:#ffd700; font-size:.75em; margin-top:4px; }
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
     <h1>💰 WHO WANTS TO BE A MILLIONAIRE 💰</h1>
-    <p>Edisi Informatika • SMK Kelas X • 🎵 Musik Dramatis</p>
+    <p>Edisi Informatika • SMK Kelas X</p>
+    <span class="audio-tag">🎻 Orkestra Cinematic Version</span>
   </header>
 
   <div class="game-grid">
@@ -176,6 +185,10 @@
           <div class="life" id="lifeAud" title="Ask the Audience" onclick="useAudience()">👥</div>
         </div>
         <div class="side-btns">
+          <div class="vol-wrap">
+            <span class="vol-label">🔊</span>
+            <input type="range" min="0" max="100" value="65" class="vol-slider" id="volSlider" oninput="setVolume(this.value)">
+          </div>
           <button class="music-btn" id="musicBtn" onclick="toggleMusic()">🎵 MUSIK: ON</button>
           <button class="walk-btn" id="walkBtn" onclick="askWalk()">🏳️ BERHENTI</button>
         </div>
@@ -211,9 +224,9 @@
     <div class="big-emoji">💰</div>
     <h2>Siap Jadi Jutawan?</h2>
     <p>Jawab <b>20 soal Informatika</b> dengan benar semua untuk memenangkan <b>Rp 1 MILIAR!</b><br>
-    🎵 <i>Nyalakan speaker untuk pengalaman paling menegangkan!</i></p>
+    🎻 <i>Soundtrack orkestra cinematic akan menemani keteganganmu — nyalakan speaker!</i></p>
     <div class="rules">
-      📈 Soal makin tinggi = makin sulit & hadiah makin besar<br>
+      📈 Soal makin tinggi = makin sulit & musik makin intens<br>
       ⏱️ Waktu per level: Mudah 30s • Sedang 45s • Sulit 60s • Expert 90s<br>
       ⭐ Level 5, 10, 15 adalah <b>LEVEL AMAN</b><br>
       ❌ Jawaban salah → turun ke level aman terdekat<br>
@@ -350,177 +363,424 @@ let life = {fifty:true, phone:true, aud:true};
 let AC = null;
 
 // =========================================================
-// ============ MESIN MUSIK & SUARA (Web Audio) ============
-// Musik orisinal bergaya kuis dramatis (bukan lagu berhak cipta)
+// ===== 🎻 MESIN ORKESTRA CINEMATIC (Web Audio, Orisinal) =====
 // =========================================================
-let musicOn=true, musicStarted=false, musicGain=null;
-let chordTimer=null, pulseTimer=null, chordIdx=0, pulseHigh=false;
+let musicOn=true, musicStarted=false, masterVol=0.65;
+let masterGain=null, musicGain=null, fxGain=null;
+let beatTimer=null, chordIdx=0, beatCount=0;
+let intensity=1; // 1-4 sesuai level kesulitan
+const BPM=96;
+const BEAT_MS = 60000/BPM; // ~625 ms
+
+// Progresi akor orisinal (4 chord loop, Dm tonal)
+// Setiap chord: bass (root) + arpeggio notes + pad stack
+const CHORDS=[
+  { name:'Dm9',  bass:73.42, arp:[146.83,220.00,293.66,440.00], pad:[146.83,220.00,349.23] },
+  { name:'Bbmaj7',bass:116.54,arp:[233.08,293.66,349.23,440.00], pad:[233.08,293.66,349.23] },
+  { name:'Gm9',  bass:98.00, arp:[196.00,233.08,293.66,392.00], pad:[196.00,233.08,293.66] },
+  { name:'A7sus4',bass:110.00,arp:[220.00,293.66,329.63,440.00], pad:[220.00,329.63,440.00] }
+];
 
 function ac(){ if(!AC) AC=new (window.AudioContext||window.webkitAudioContext)(); return AC; }
 function ensureAudio(){ const c=ac(); if(c.state==='suspended') c.resume(); return c; }
+function now(){ return ac().currentTime; }
 
-// satu nada sederhana
-function note(f,d,type,v,when){
-  try{ const c=ac(), o=c.createOscillator(), g=c.createGain();
-  o.type=type; o.frequency.value=f;
-  g.gain.setValueAtTime(0.0001,when);
-  g.gain.linearRampToValueAtTime(v,when+0.02);
-  g.gain.exponentialRampToValueAtTime(0.0001,when+d);
-  o.connect(g); g.connect(c.destination);
-  o.start(when); o.stop(when+d+0.05);}catch(e){}
-}
-
-// --- MUSIK LATAR: progresi minor dramatis (orisinal) ---
-const CHORDS=[
-  {bass:73.42, notes:[146.83,220.00,293.66,349.23]},  // Dm
-  {bass:58.27, notes:[116.54,174.61,233.08,293.66]},  // Bb
-  {bass:65.41, notes:[130.81,196.00,261.63,329.63]},  // C
-  {bass:55.00, notes:[110.00,164.81,220.00,277.18]}   // A (tegang)
-];
-
-function startMusic(){
-  if(musicStarted) return;
+// --- MASTER & GAINS ---
+function initBus(){
   const c=ensureAudio();
-  musicStarted=true;
-  musicGain=c.createGain(); musicGain.gain.value=musicOn?0.9:0;
-  musicGain.connect(c.destination);
-
-  // Drone rendah "bernapas" (dua gelombang sedikit detune = bergetar)
-  const dg=c.createGain(); dg.gain.value=0.05;
-  const d1=c.createOscillator(); d1.type='sine'; d1.frequency.value=36.71; // D1
-  const d2=c.createOscillator(); d2.type='sine'; d2.frequency.value=37.15;
-  const lfo=c.createOscillator(); lfo.frequency.value=0.12;
-  const lfoG=c.createGain(); lfoG.gain.value=0.02;
-  lfo.connect(lfoG); lfoG.connect(dg.gain);
-  d1.connect(dg); d2.connect(dg); dg.connect(musicGain);
-  d1.start(); d2.start(); lfo.start();
-
-  chordTimer=setInterval(playPadChord,4000);
-  pulseTimer=setInterval(playPulse,650);
-  playPadChord();
+  masterGain=c.createGain(); masterGain.gain.value=masterVol;
+  musicGain=c.createGain();  musicGain.gain.value=0.8;
+  fxGain=c.createGain();     fxGain.gain.value=1.0;
+  musicGain.connect(masterGain); fxGain.connect(masterGain); masterGain.connect(c.destination);
 }
 
-function pad(freq,dur,vol,type='sawtooth'){
+function setVolume(v){
+  masterVol=v/100;
+  if(masterGain) masterGain.gain.setTargetAtTime(masterVol,now(),0.05);
+}
+
+// --- INSTRUMEN DASAR ---
+function osc(freq,type,dur,vol,when,attack=0.02,release=0.3,dest=null){
+  try{ const c=ac(), o=c.createOscillator(), g=c.createGain();
+  o.type=type; o.frequency.value=freq;
+  g.gain.setValueAtTime(0.0001,when);
+  g.gain.linearRampToValueAtTime(vol,when+attack);
+  g.gain.setValueAtTime(vol,when+dur-release);
+  g.gain.linearRampToValueAtTime(0.0001,when+dur);
+  o.connect(g); g.connect(dest||musicGain);
+  o.start(when); o.stop(when+dur+0.05);}catch(e){}
+}
+
+function filteredOsc(freq,type,dur,vol,when,filterFreq=1200,filterQ=1,attack=0.05,release=0.4){
   try{ const c=ac(), o=c.createOscillator(), f=c.createBiquadFilter(), g=c.createGain();
   o.type=type; o.frequency.value=freq;
-  f.type='lowpass'; f.frequency.value=900; f.Q.value=0.7;
-  g.gain.setValueAtTime(0.0001,c.currentTime);
-  g.gain.linearRampToValueAtTime(vol,c.currentTime+0.9);
-  g.gain.setValueAtTime(vol,c.currentTime+dur-0.7);
-  g.gain.linearRampToValueAtTime(0.0001,c.currentTime+dur);
+  f.type='lowpass'; f.frequency.value=filterFreq; f.Q.value=filterQ;
+  g.gain.setValueAtTime(0.0001,when);
+  g.gain.linearRampToValueAtTime(vol,when+attack);
+  g.gain.setValueAtTime(vol,when+dur-release);
+  g.gain.linearRampToValueAtTime(0.0001,when+dur);
   o.connect(f); f.connect(g); g.connect(musicGain);
-  o.start(); o.stop(c.currentTime+dur+0.1);}catch(e){}
+  o.start(when); o.stop(when+dur+0.1);}catch(e){}
 }
 
-function playPadChord(){
-  if(!musicOn||!musicStarted) return;
-  const ch=CHORDS[chordIdx%4]; chordIdx++;
-  ch.notes.forEach(f=>pad(f,3.9,0.016));
-  pad(ch.bass,3.9,0.03,'triangle');
+// --- AMBIENT PAD (bernapas, chord sustain) ---
+function playPad(chord, when){
+  const baseVol = 0.04 * (0.7 + intensity*0.1);
+  chord.pad.forEach(f=>{
+    // dua oscillator detuned sedikit untuk "breathing"
+    filteredOsc(f,     'sawtooth', 2.4, baseVol, when, 900, 0.6, 0.3, 0.6);
+    filteredOsc(f*1.003,'sawtooth', 2.4, baseVol*0.85, when+0.02, 900, 0.6, 0.3, 0.6);
+  });
 }
 
-function playPulse(){
-  if(!musicOn||!musicStarted) return;
-  try{ pulseHigh=!pulseHigh;
-  const c=ac(), o=c.createOscillator(), g=c.createGain();
-  o.type='triangle'; o.frequency.value=pulseHigh?146.83:73.42;
-  g.gain.setValueAtTime(0.032,c.currentTime);
-  g.gain.exponentialRampToValueAtTime(0.0001,c.currentTime+0.35);
+// --- STRING ARPEGGIO (violin-like) ---
+function playStrings(chord, when){
+  const vol = 0.06 * (0.5 + intensity*0.15);
+  const stepDur = BEAT_MS/1000/4; // 1/16 note
+  chord.arp.forEach((f,i)=>{
+    // violin: sawtooth dengan filter envelope (attack cepat, decay pelan)
+    try{ const c=ac(), t=when+i*stepDur;
+    const o=c.createOscillator(), f1=c.createBiquadFilter(), g=c.createGain();
+    o.type='sawtooth'; o.frequency.value=f;
+    f1.type='lowpass'; f1.frequency.setValueAtTime(600,t);
+    f1.frequency.linearRampToValueAtTime(2400,t+0.08);
+    f1.frequency.linearRampToValueAtTime(900,t+stepDur*2);
+    f1.Q.value=0.8;
+    g.gain.setValueAtTime(0.0001,t);
+    g.gain.linearRampToValueAtTime(vol,t+0.04);
+    g.gain.linearRampToValueAtTime(vol*0.6,t+stepDur*0.7);
+    g.gain.linearRampToValueAtTime(0.0001,t+stepDur*2);
+    o.connect(f1); f1.connect(g); g.connect(musicGain);
+    o.start(t); o.stop(t+stepDur*2+0.1);}catch(e){}
+  });
+}
+
+// --- TIMPANI HIT (dentuman drum) ---
+function playTimpani(when, vol=0.35){
+  try{ const c=ac();
+  // sine dengan pitch drop cepat + click transient
+  const o=c.createOscillator(), g=c.createGain();
+  o.type='sine';
+  o.frequency.setValueAtTime(120,when);
+  o.frequency.exponentialRampToValueAtTime(55,when+0.25);
+  g.gain.setValueAtTime(vol,when);
+  g.gain.exponentialRampToValueAtTime(0.001,when+0.6);
   o.connect(g); g.connect(musicGain);
-  o.start(); o.stop(c.currentTime+0.4);}catch(e){}
+  o.start(when); o.stop(when+0.7);
+
+  // click transient (noise burst pendek)
+  const bufferSize=c.sampleRate*0.05;
+  const buf=c.createBuffer(1,bufferSize,c.sampleRate);
+  const d=buf.getChannelData(0);
+  for(let i=0;i<bufferSize;i++) d[i]=(Math.random()*2-1)*Math.exp(-i/300);
+  const ns=c.createBufferSource(); ns.buffer=buf;
+  const ng=c.createGain(); ng.gain.value=vol*0.5;
+  const nf=c.createBiquadFilter(); nf.type='bandpass'; nf.frequency.value=180;
+  ns.connect(nf); nf.connect(ng); ng.connect(musicGain);
+  ns.start(when);}catch(e){}
 }
 
-function duckMusic(){ if(musicGain) musicGain.gain.setTargetAtTime(0.22, ac().currentTime, 0.1); }
-function unduckMusic(){ if(musicGain) musicGain.gain.setTargetAtTime(musicOn?0.9:0, ac().currentTime, 0.3); }
-function fadeOutMusic(){
-  if(musicGain) musicGain.gain.setTargetAtTime(0, ac().currentTime, 0.8);
-  clearInterval(chordTimer); chordTimer=null;
-  clearInterval(pulseTimer); pulseTimer=null;
+// --- BRASS SWELL (transisi naik) ---
+function playBrassSwell(){
+  try{ const c=ac(), t=now();
+  // stack akor + filter sweep naik
+  const notes=[293.66,369.99,440.00,587.33];
+  notes.forEach((f,i)=>{
+    const o=c.createOscillator(), fl=c.createBiquadFilter(), g=c.createGain();
+    o.type='sawtooth'; o.frequency.value=f;
+    fl.type='lowpass'; fl.Q.value=1.5;
+    fl.frequency.setValueAtTime(300,t+i*0.05);
+    fl.frequency.linearRampToValueAtTime(3500,t+1.8);
+    g.gain.setValueAtTime(0.0001,t+i*0.05);
+    g.gain.linearRampToValueAtTime(0.08,t+1.4);
+    g.gain.linearRampToValueAtTime(0.0001,t+2.1);
+    o.connect(fl); fl.connect(g); g.connect(musicGain);
+    o.start(t+i*0.05); o.stop(t+2.2);
+  });
+  }catch(e){}
 }
 
+// --- AMBIENT CHOIR (pad halus level 3+) ---
+function playChoir(){
+  try{ const c=ac(), t=now();
+  const ch=CHORDS[chordIdx%4];
+  // sine waves dengan vibrato halus
+  ch.pad.forEach(f=>{
+    const o=c.createOscillator(), lfo=c.createOscillator(), lfoG=c.createGain(), g=c.createGain();
+    o.type='sine'; o.frequency.value=f*2; // oktaf atas
+    lfo.frequency.value=4.5;
+    lfoG.gain.value=2;
+    lfo.connect(lfoG); lfoG.connect(o.frequency);
+    g.gain.setValueAtTime(0.0001,t);
+    g.gain.linearRampToValueAtTime(0.012*intensity/2,t+0.8);
+    g.gain.setValueAtTime(0.012*intensity/2,t+2.5);
+    g.gain.linearRampToValueAtTime(0.0001,t+3.3);
+    o.connect(g); g.connect(musicGain);
+    o.start(t); lfo.start(t);
+    o.stop(t+3.4); lfo.stop(t+3.4);
+  });
+  }catch(e){}
+}
+
+// --- HEARTBEAT (waktu menipis, 10 detik terakhir) ---
+function playHeartbeat(when){
+  try{ const c=ac();
+  // lub
+  const o1=c.createOscillator(), g1=c.createGain();
+  o1.type='sine';
+  o1.frequency.setValueAtTime(85,when);
+  o1.frequency.exponentialRampToValueAtTime(40,when+0.1);
+  g1.gain.setValueAtTime(0.25,when);
+  g1.gain.exponentialRampToValueAtTime(0.001,when+0.15);
+  o1.connect(g1); g1.connect(fxGain);
+  o1.start(when); o1.stop(when+0.2);
+  // dub
+  const o2=c.createOscillator(), g2=c.createGain();
+  o2.type='sine';
+  o2.frequency.setValueAtTime(75,when+0.18);
+  o2.frequency.exponentialRampToValueAtTime(35,when+0.3);
+  g2.gain.setValueAtTime(0.18,when+0.18);
+  g2.gain.exponentialRampToValueAtTime(0.001,when+0.35);
+  o2.connect(g2); g2.connect(fxGain);
+  o2.start(when+0.18); o2.stop(when+0.4);
+  }catch(e){}
+}
+
+// --- TICK PULSE (beat dasar) ---
+function playPulse(when){
+  try{ const c=ac();
+  const o=c.createOscillator(), g=c.createGain();
+  o.type='triangle'; o.frequency.value=80;
+  g.gain.setValueAtTime(0.04+intensity*0.01,when);
+  g.gain.exponentialRampToValueAtTime(0.001,when+0.08);
+  o.connect(g); g.connect(musicGain);
+  o.start(when); o.stop(when+0.1);
+  }catch(e){}
+}
+
+// === MAIN BEAT LOOP ===
+function startMusic(){
+  if(musicStarted) return;
+  initBus();
+  musicStarted=true;
+
+  // main beat scheduler - setiap BEAT_MS
+  beatTimer=setInterval(()=>{
+    if(!musicOn) return;
+    const c=ac(), t=now()+0.05;
+    const ch=CHORDS[chordIdx%4];
+
+    // setiap 8 beat = chord baru (2 bar)
+    if(beatCount%8===0){
+      playPad(ch, t);
+      playStrings(ch, t);
+      chordIdx++;
+      if(intensity>=3) playTimpani(t, 0.28);
+    }
+    // timpani hit setiap 8 beat di intensity 3+
+    if(beatCount%16===0 && intensity>=4){
+      playTimpani(t, 0.4);
+      playChoir();
+    }
+    // pulse tiap 2 beat
+    if(beatCount%2===0) playPulse(t);
+
+    beatCount++;
+  }, BEAT_MS);
+
+  // mulai chord pertama segera
+  const t=now()+0.05;
+  playPad(CHORDS[0], t);
+  playStrings(CHORDS[0], t);
+}
+
+// === INTENSITAS SESUAI LEVEL ===
+function setIntensity(level){
+  intensity=level; // 1 mudah, 2 sedang, 3 sulit, 4 expert
+}
+
+// === TOGGLE MUSIK ===
 function toggleMusic(){
   musicOn=!musicOn;
   $('musicBtn').textContent = musicOn?'🎵 MUSIK: ON':'🔇 MUSIK: OFF';
   if(!musicStarted) return;
   if(musicOn){
-    musicGain.gain.setTargetAtTime(0.9, ac().currentTime, 0.2);
-    if(!chordTimer){
-      chordTimer=setInterval(playPadChord,4000);
-      pulseTimer=setInterval(playPulse,650);
+    musicGain.gain.setTargetAtTime(0.8,now(),0.2);
+    if(!beatTimer){
+      beatTimer=setInterval(()=>{
+        const c=ac(), t=now()+0.05;
+        const ch=CHORDS[chordIdx%4];
+        if(beatCount%8===0){
+          playPad(ch,t); playStrings(ch,t); chordIdx++;
+          if(intensity>=3) playTimpani(t,0.28);
+        }
+        if(beatCount%16===0 && intensity>=4){ playTimpani(t,0.4); playChoir(); }
+        if(beatCount%2===0) playPulse(t);
+        beatCount++;
+      }, BEAT_MS);
     }
   } else {
-    musicGain.gain.setTargetAtTime(0, ac().currentTime, 0.15);
-    clearInterval(chordTimer); chordTimer=null;
-    clearInterval(pulseTimer); pulseTimer=null;
+    musicGain.gain.setTargetAtTime(0,now(),0.15);
+    clearInterval(beatTimer); beatTimer=null;
   }
 }
 
-// --- EFEK SUARA DRAMATIS (orisinal) ---
-function sndSel(){ note(700,.1,'triangle',.1,ac().currentTime); }
-
-function sndLife(){ const t=ac().currentTime; note(880,.12,'triangle',.12,t); note(1320,.2,'triangle',.1,t+.12); }
-
-// Detak jantung saat waktu menipis (lub-dub)
-function thump(when,v){
-  try{ const c=ac(), o=c.createOscillator(), g=c.createGain();
-  o.type='sine'; o.frequency.setValueAtTime(95,when);
-  o.frequency.exponentialRampToValueAtTime(45,when+0.12);
-  g.gain.setValueAtTime(v,when); g.gain.exponentialRampToValueAtTime(0.001,when+0.15);
-  o.connect(g); g.connect(c.destination); o.start(when); o.stop(when+0.2);}catch(e){}
+function duckMusic(){ if(musicGain) musicGain.gain.setTargetAtTime(0.18,now(),0.1); }
+function unduckMusic(){ if(musicGain) musicGain.gain.setTargetAtTime(musicOn?0.8:0,now(),0.3); }
+function fadeOutMusic(){
+  if(musicGain) musicGain.gain.setTargetAtTime(0,now(),1);
+  clearInterval(beatTimer); beatTimer=null;
 }
-function sndHeart(){ const t=ac().currentTime; thump(t,.22); thump(t+.2,.14); }
 
-// KUNCI JAWABAN: dentum timpani + riser menegang naik
+// --- SFX GAME ---
+function sndSel(){
+  try{ const c=ac(), t=now();
+  const o=c.createOscillator(), g=c.createGain();
+  o.type='sine'; o.frequency.value=700;
+  g.gain.setValueAtTime(0.15,t);
+  g.gain.exponentialRampToValueAtTime(0.001,t+0.1);
+  o.connect(g); g.connect(fxGain);
+  o.start(t); o.stop(t+0.12);}catch(e){}
+}
+
+function sndLife(){
+  try{ const c=ac(), t=now();
+  [880,1320].forEach((f,i)=>{
+    const o=c.createOscillator(), g=c.createGain();
+    o.type='triangle'; o.frequency.value=f;
+    g.gain.setValueAtTime(0.1,t+i*0.12);
+    g.gain.exponentialRampToValueAtTime(0.001,t+i*0.12+0.2);
+    o.connect(g); g.connect(fxGain);
+    o.start(t+i*0.12); o.stop(t+i*0.12+0.25);
+  });}catch(e){}
+}
+
+// DENTUM + RISER saat lock answer
 function sndLockIn(){
-  try{ const c=ac(), t=c.currentTime;
+  try{ const c=ac(), t=now();
+  // dentum rendah
   const o=c.createOscillator(), g=c.createGain();
-  o.type='sine'; o.frequency.setValueAtTime(160,t);
-  o.frequency.exponentialRampToValueAtTime(50,t+0.5);
-  g.gain.setValueAtTime(0.5,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.65);
-  o.connect(g); g.connect(c.destination); o.start(t); o.stop(t+0.7);
+  o.type='sine';
+  o.frequency.setValueAtTime(180,t);
+  o.frequency.exponentialRampToValueAtTime(45,t+0.7);
+  g.gain.setValueAtTime(0.4,t);
+  g.gain.exponentialRampToValueAtTime(0.001,t+0.85);
+  o.connect(g); g.connect(fxGain);
+  o.start(t); o.stop(t+0.9);
 
+  // riser: frekuensi naik
   const r=c.createOscillator(), rf=c.createBiquadFilter(), rg=c.createGain();
-  r.type='sawtooth'; r.frequency.setValueAtTime(80,t);
-  r.frequency.linearRampToValueAtTime(420,t+1.5);
-  rf.type='lowpass'; rf.frequency.value=700;
+  r.type='sawtooth';
+  r.frequency.setValueAtTime(80,t);
+  r.frequency.linearRampToValueAtTime(600,t+1.8);
+  rf.type='lowpass'; rf.frequency.value=1000; rf.Q.value=2;
   rg.gain.setValueAtTime(0.0001,t);
-  rg.gain.linearRampToValueAtTime(0.09,t+1.4);
-  rg.gain.linearRampToValueAtTime(0.0001,t+1.6);
-  r.connect(rf); rf.connect(rg); rg.connect(c.destination);
-  r.start(t); r.stop(t+1.7);}catch(e){}
+  rg.gain.linearRampToValueAtTime(0.12,t+1.5);
+  rg.gain.linearRampToValueAtTime(0.0001,t+2.0);
+  r.connect(rf); rf.connect(rg); rg.connect(fxGain);
+  r.start(t); r.stop(t+2.1);
+
+  // timpani hit di akhir riser
+  playTimpani(t+1.7, 0.5);
+  }catch(e){}
 }
 
-// BENAR: arpeggio naik + akor mayor kemenangan (orisinal)
+// BENAR - triumphant arpeggio + major chord
 function sndCorrectBig(){
-  const t=ac().currentTime;
-  [293.66,440,587.33,739.99].forEach((f,i)=>note(f,.18,'triangle',.2,t+i*.11));
-  [293.66,369.99,440,587.33].forEach(f=>note(f,1.3,'sine',.08,t+.5));
-  note(1174.66,.9,'sine',.05,t+.5);
+  try{ const c=ac(), t=now();
+  // arpeggio naik (major)
+  [293.66,369.99,440.00,587.33,739.99,880.00].forEach((f,i)=>{
+    const o=c.createOscillator(), g=c.createGain();
+    o.type='triangle'; o.frequency.value=f;
+    g.gain.setValueAtTime(0.18,t+i*0.1);
+    g.gain.exponentialRampToValueAtTime(0.001,t+i*0.1+0.5);
+    o.connect(g); g.connect(fxGain);
+    o.start(t+i*0.1); o.stop(t+i*0.1+0.55);
+  });
+  // akor mayor sustain
+  [293.66,369.99,440.00,587.33].forEach(f=>{
+    const o=c.createOscillator(), g=c.createGain();
+    o.type='sine'; o.frequency.value=f;
+    g.gain.setValueAtTime(0.0001,t+0.6);
+    g.gain.linearRampToValueAtTime(0.08,t+0.8);
+    g.gain.linearRampToValueAtTime(0.0001,t+2.0);
+    o.connect(g); g.connect(fxGain);
+    o.start(t+0.6); o.stop(t+2.1);
+  });
+  }catch(e){}
 }
 
-// SALAH: dentum rendah + disonansi dramatis (orisinal)
+// SALAH - disonansi + low rumble
 function sndWrongBig(){
-  try{ const c=ac(), t=c.currentTime;
+  try{ const c=ac(), t=now();
+  // dentuman rendah
   const o=c.createOscillator(), g=c.createGain();
-  o.type='sine'; o.frequency.setValueAtTime(130,t);
-  o.frequency.exponentialRampToValueAtTime(40,t+.9);
-  g.gain.setValueAtTime(.5,t); g.gain.exponentialRampToValueAtTime(.001,t+1);
-  o.connect(g); g.connect(c.destination); o.start(t); o.stop(t+1.1);
-  note(146.83,1.5,'square',.05,t+.15);
-  note(155.56,1.5,'square',.05,t+.15);
-  note(73.42,1.7,'sawtooth',.07,t+.15);}catch(e){}
+  o.type='sine';
+  o.frequency.setValueAtTime(130,t);
+  o.frequency.exponentialRampToValueAtTime(35,t+1);
+  g.gain.setValueAtTime(0.4,t);
+  g.gain.exponentialRampToValueAtTime(0.001,t+1.2);
+  o.connect(g); g.connect(fxGain);
+  o.start(t); o.stop(t+1.3);
+
+  // disonansi
+  [146.83,155.56].forEach(f=>{
+    const o=c.createOscillator(), g=c.createGain();
+    o.type='square'; o.frequency.value=f;
+    g.gain.setValueAtTime(0.06,t+0.15);
+    g.gain.linearRampToValueAtTime(0.0001,t+1.8);
+    o.connect(g); g.connect(fxGain);
+    o.start(t+0.15); o.stop(t+1.9);
+  });
+  }catch(e){}
 }
 
-// MENANG BESAR: fanfare panjang (orisinal)
+// WIN - full orchestra fanfare
 function sndWinBig(){
-  const t=ac().currentTime;
-  [293.66,329.63,369.99,440,493.88,587.33,739.99,880,1174.66]
-    .forEach((f,i)=>note(f,.22,'triangle',.16,t+i*.14));
-  [293.66,369.99,440,587.33,739.99].forEach(f=>note(f,2.2,'sine',.07,t+1.4));
+  try{ const c=ac(), t=now();
+  // arpeggio naik cepat
+  const scale=[293.66,329.63,369.99,440.00,493.88,587.33,659.25,739.99,880.00,1174.66];
+  scale.forEach((f,i)=>{
+    const o=c.createOscillator(), g=c.createGain();
+    o.type='triangle'; o.frequency.value=f;
+    g.gain.setValueAtTime(0.15,t+i*0.12);
+    g.gain.exponentialRampToValueAtTime(0.001,t+i*0.12+0.35);
+    o.connect(g); g.connect(fxGain);
+    o.start(t+i*0.12); o.stop(t+i*0.12+0.4);
+  });
+  // akor final
+  [293.66,440.00,587.33,880.00].forEach(f=>{
+    const o=c.createOscillator(), g=c.createGain();
+    o.type='sine'; o.frequency.value=f;
+    g.gain.setValueAtTime(0.0001,t+1.3);
+    g.gain.linearRampToValueAtTime(0.1,t+1.6);
+    g.gain.linearRampToValueAtTime(0.0001,t+3.5);
+    o.connect(g); g.connect(fxGain);
+    o.start(t+1.3); o.stop(t+3.6);
+  });
+  // timpani final
+  playTimpani(t+0.5, 0.6);
+  playTimpani(t+1.2, 0.7);
+  }catch(e){}
 }
 
-// Naik level: lick pendek
-function sndNext(){ const t=ac().currentTime; [220,277.18,329.63].forEach((f,i)=>note(f,.12,'triangle',.12,t+i*.07)); }
+// Naik level - lick pendek
+function sndNext(){
+  try{ const c=ac(), t=now();
+  [220.00,277.18,329.63].forEach((f,i)=>{
+    const o=c.createOscillator(), g=c.createGain();
+    o.type='triangle'; o.frequency.value=f;
+    g.gain.setValueAtTime(0.12,t+i*0.08);
+    g.gain.exponentialRampToValueAtTime(0.001,t+i*0.08+0.2);
+    o.connect(g); g.connect(fxGain);
+    o.start(t+i*0.08); o.stop(t+i*0.08+0.25);
+  });}catch(e){}
+}
+
+// Detak jantung saat waktu menipis
+function playTension(){
+  try{ const t=now(); playHeartbeat(t); }catch(e){}
+}
 
 // ================= UTIL =================
 const $=id=>document.getElementById(id);
@@ -546,8 +806,8 @@ function prepQuestions(){
   });
 }
 function startGame(){
-  ensureAudio();      // aktifkan audio lewat klik pengguna
-  startMusic();       // mulai musik latar dramatis
+  ensureAudio();
+  startMusic();
   $('startModal').classList.add('hidden');
   buildLadder(); prepQuestions(); loadQ(0,true);
 }
@@ -558,6 +818,8 @@ function loadQ(i,first){
   cur=i; sel=-1; locked=false; hidden50=[];
   const q=QUESTIONS[i];
   totalTime=TIMES[q.d-1]; timeLeft=totalTime;
+  setIntensity(q.d); // musik ikut naik intensitasnya
+  if(q.d>=3 && !first) playBrassSwell(); // brass saat naik level sulit
   $('qLevel').textContent='LEVEL '+LVLNAME[q.d-1];
   $('qFor').textContent=`Soal ${i+1} • ${PRIZES[i].l}`;
   $('qText').innerHTML=q.q;
@@ -596,9 +858,8 @@ function startTimer(){
   timerId=setInterval(()=>{
     timeLeft--;
     updateRing();
-    if(timeLeft<=10 && timeLeft>0){
-      timeLeft<=5 ? sndHeart() : note(1100,.05,'square',.05,ac().currentTime);
-    }
+    if(timeLeft<=10 && timeLeft>0 && timeLeft>5) sndSel();
+    if(timeLeft<=5 && timeLeft>0) playTension();
     if(timeLeft<=0){ clearInterval(timerId); timeUp(); }
   },1000);
 }
@@ -613,11 +874,11 @@ function updateRing(){
 function lockAnswer(){
   if(sel<0||locked) return;
   locked=true; clearInterval(timerId);
-  sndLockIn();          // dentum + riser menegang
-  duckMusic();          // musik mengecil saat momen menegangkan
+  sndLockIn();
+  duckMusic();
   $('lockArea').innerHTML='<span class="msg">🤞 Semoga beruntung...</span>';
   disableAll();
-  setTimeout(()=>reveal(sel),1800);
+  setTimeout(()=>reveal(sel),2200);
 }
 
 function reveal(picked){
@@ -633,12 +894,12 @@ function reveal(picked){
       else {
         $('lockArea').innerHTML=`<button class="lock-btn" onclick="loadQ(${cur+1})">➡️ Lanjut ke Soal ${cur+2} (${PRIZES[cur+1].l})</button>`;
       }
-    },2200);
+    },2400);
   } else {
     if(picked>=0){ $('opt'+picked).classList.remove('sel'); $('opt'+picked).classList.add('wrongpick'); }
     $('opt'+q.a).classList.add('right');
     sndWrongBig();
-    setTimeout(()=>gameOver(picked),2600);
+    setTimeout(()=>gameOver(picked),2800);
   }
 }
 
@@ -686,7 +947,6 @@ function winGame(){
   $('endModal').classList.remove('hidden');
 }
 
-// ================= WALK AWAY =================
 function askWalk(){
   if(locked) return;
   const won = cur>0 ? PRIZES[cur-1].v : 0;
@@ -695,7 +955,6 @@ function askWalk(){
     $('walkModal').classList.add('hidden');
     clearInterval(timerId);
     fadeOutMusic();
-    const t=ac().currentTime; [440,349.23,293.66].forEach((f,i)=>note(f,.4,'sine',.12,t+i*.25));
     $('endEmoji').textContent='🏳️';
     $('endTitle').textContent='Keputusan Bijak!';
     $('endTitle').style.color='#3498db';
@@ -763,7 +1022,15 @@ function giveFriendAnswer(friend){
     <b style="color:#ffd700">huruf ${String.fromCharCode(65+pick)}</b>. ${q.h}
     Aku sekitar ${sure}% yakin ya. Keputusan tetap di tanganmu, semangat!" 💪`;
   $('phoneClose').classList.remove('hidden');
-  const t=ac().currentTime; note(1046,.15,'sine',.1,t); note(1318,.25,'sine',.1,t+.15);
+  try{ const c=ac(), t=now();
+  [1046,1318].forEach((f,i)=>{
+    const o=c.createOscillator(), g=c.createGain();
+    o.type='sine'; o.frequency.value=f;
+    g.gain.setValueAtTime(0.1,t+i*0.15);
+    g.gain.exponentialRampToValueAtTime(0.001,t+i*0.15+0.25);
+    o.connect(g); g.connect(fxGain);
+    o.start(t+i*0.15); o.stop(t+i*0.15+0.3);
+  });}catch(e){}
 }
 
 function closePhone(){
@@ -808,7 +1075,7 @@ function closeAudience(){ $('audModal').classList.add('hidden'); }
 
 // ================= CONFETTI =================
 function confetti(){
-  const chars=['🎉','🎊','💰','⭐','🏆','✨','💻'];
+  const chars=['🎉','🎊','💰','⭐','🏆','✨','💻','🎻'];
   for(let i=0;i<90;i++){
     const s=document.createElement('span');
     s.className='confetti';
